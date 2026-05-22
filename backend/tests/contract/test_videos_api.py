@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from fastapi.testclient import TestClient
 
 from src.api import deps
+from src.api.deps import RequestContext
 from src.main import app
 from src.models.user import User
 from src.models.video import Video, VideoPlatform, VideoStatus
@@ -86,8 +87,8 @@ def test_post_videos_contract(monkeypatch):
     async def fake_get_db():
         yield fake_db
 
-    async def fake_get_current_user():
-        return user
+    async def fake_get_request_context():
+        return RequestContext(user=user)
 
     async def fake_extract_metadata(url: str):
         return {
@@ -101,8 +102,7 @@ def test_post_videos_contract(monkeypatch):
     monkeypatch.setattr("src.api.v1.videos.transcribe_audio_task", FakeTask())
 
     app.dependency_overrides[deps.get_db] = fake_get_db
-    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
-    app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
+    app.dependency_overrides[deps.get_request_context] = fake_get_request_context
 
     client = TestClient(app)
     res = client.post("/api/v1/videos", json={"url": "https://www.youtube.com/watch?v=jNQXAC9IVRw"})
@@ -139,12 +139,11 @@ def test_get_video_by_id_contract(monkeypatch):
     async def fake_get_db():
         yield fake_db
 
-    async def fake_get_current_user():
-        return user
+    async def fake_get_request_context():
+        return RequestContext(user=user)
 
     app.dependency_overrides[deps.get_db] = fake_get_db
-    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
-    app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
+    app.dependency_overrides[deps.get_request_context] = fake_get_request_context
 
     client = TestClient(app)
     res = client.get("/api/v1/videos/1")

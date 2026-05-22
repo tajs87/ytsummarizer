@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from fastapi.testclient import TestClient
 
 from src.api import deps
+from src.api.deps import RequestContext
 from src.main import app
 from src.models.transcription import Transcription
 from src.models.user import User
@@ -64,12 +65,11 @@ def test_transcription_retrieval_and_search_flow():
     async def fake_get_db():
         yield db
 
-    async def fake_get_current_user():
-        return user
+    async def fake_get_request_context():
+        return RequestContext(user=user)
 
     app.dependency_overrides[deps.get_db] = fake_get_db
-    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
-    app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
+    app.dependency_overrides[deps.get_request_context] = fake_get_request_context
 
     client = TestClient(app)
 
