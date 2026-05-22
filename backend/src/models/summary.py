@@ -30,7 +30,9 @@ class Summary(Base):  # type: ignore[misc]
     video_id = Column(
         Integer, ForeignKey("videos.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    summary_type: Mapped[str] = Column(SQLEnum(SummaryType), nullable=False, default=SummaryType.BRIEF)  # type: ignore[assignment]
+    summary_type: Mapped[str] = Column(
+        SQLEnum(SummaryType), nullable=False, default=SummaryType.BRIEF
+    )  # type: ignore[assignment]
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
     updated_at = Column(

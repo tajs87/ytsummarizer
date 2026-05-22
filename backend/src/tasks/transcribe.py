@@ -22,7 +22,9 @@ from src.tasks.base import ProgressTask
 
 
 @celery_app.task(bind=True, base=ProgressTask, name="tasks.transcribe_audio")  # type: ignore[untyped-decorator]
-def transcribe_audio_task(self: Task, extract_result: dict[str, Any], video_id: int) -> dict[str, int]:
+def transcribe_audio_task(
+    self: Task, extract_result: dict[str, Any], video_id: int
+) -> dict[str, int]:
     """
     Transcribe audio file and save results to database.
 

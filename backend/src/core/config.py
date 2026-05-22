@@ -61,7 +61,7 @@ class Settings(BaseSettings):
     @classmethod
     def set_celery_broker(cls, v: str | None, info: FieldInfo) -> str:
         """Default celery_broker_url to redis_url if not set."""
-        if v is None and hasattr(info, 'data') and "redis_url" in info.data:
+        if v is None and hasattr(info, "data") and "redis_url" in info.data:
             return str(info.data["redis_url"])
         return v or "redis://localhost:6379/0"
 
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     @classmethod
     def set_celery_result(cls, v: str | None, info: FieldInfo) -> str:
         """Default celery_result_backend to redis_url/1 if not set."""
-        if v is None and hasattr(info, 'data') and "redis_url" in info.data:
+        if v is None and hasattr(info, "data") and "redis_url" in info.data:
             redis_url = str(info.data["redis_url"])
             # Change database number to 1 for results
             return redis_url.rsplit("/", 1)[0] + "/1"
