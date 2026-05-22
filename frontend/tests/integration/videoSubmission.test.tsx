@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
+import { AuthProvider } from '@/hooks/useAuth';
 import { Home } from '@/pages/Home';
 
 const mutateAsync = vi.fn();
@@ -42,7 +43,9 @@ function renderApp() {
   return render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Home />
+        <AuthProvider>
+          <Home />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
