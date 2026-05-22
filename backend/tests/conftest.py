@@ -1,0 +1,122 @@
+"""
+Pytest configuration and shared fixtures for backend tests.
+"""
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from src.core.config import get_settings
+from src.db.session import Base
+from src.models.guest_session import GuestSession
+from src.models.user import User  # noqa: F401 - imported for table creation
+
+
+@pytest.fixture(scope="function")
+def test_db() -> Session:
+    """
+    Create a test database session with isolated transaction.
+    
+    Each test gets a fresh database with all tables created.
+    Changes are rolled back after the test completes.
+    
+    Yields:
+        Database session for testing
+    """
+    # Create in-memory SQLite database
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    
+    # Create all tables
+    Base.metadata.create_all(bind=engine)
+    
+    # Create session
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = TestingSessionLocal()
+    
+    try:
+        yield session
+    finally:
+        session.close()
+        Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def test_user(test_db: Session) -> User:
+    """
+    Create a test user for authentication tests.
+    
+    Args:
+        test_db: Test database session
+    
+    Returns:
+        User instance
+    """
+    from src.core.security import get_password_hash
+    
+    user = User(
+        email="test@example.com",
+        hashed_password=get_password_hash("testpassword123"),
+        is_active=True,
+        is_superuser=False,
+    )
+    test_db.add(user)
+    test_db.commit()
+    test_db.refresh(user)
+    
+    return user
+
+
+@pytest.fixture
+def test_superuser(test_db: Session) -> User:
+    """
+    Create a test superuser for admin tests.
+    
+    Args:
+        test_db: Test database session
+    
+    Returns:
+        Superuser instance
+    """
+    from src.core.security import get_password_hash
+    
+    user = User(
+        email="admin@example.com",
+        hashed_password=get_password_hash("adminpassword123"),
+        is_active=True,
+        is_superuser=True,
+    )
+    test_db.add(user)
+    test_db.commit()
+    test_db.refresh(user)
+    
+    return user
+
+
+@pytest.fixture
+def guest_session_cookie_name() -> str:
+    """Return configured guest session cookie name for request tests."""
+    return get_settings().guest_session_cookie_name
+
+
+@pytest.fixture
+def guest_session(test_db: Session) -> GuestSession:
+    """Create an active guest session for guest-context tests."""
+    from src.services.guest_session_service import guest_session_service
+
+    token = guest_session_service.generate_token()
+    session = guest_session_service.create_guest_session(test_db, token)
+    test_db.refresh(session)
+    return session
+
+
+@pytest.fixture
+def guest_session_cookie(
+    guest_session_cookie_name: str,
+    guest_session: GuestSession,
+) -> dict[str, str]:
+    """Provide cookie mapping that can be passed to TestClient requests."""
+    return {guest_session_cookie_name: guest_session.raw_token}
