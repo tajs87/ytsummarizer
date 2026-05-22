@@ -25,6 +25,9 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
 
+    /* Test types */
+    "types": ["vitest/globals"],
+
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
