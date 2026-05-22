@@ -70,7 +70,7 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
-    return encoded_jwt
+    return encoded_jwt  # type: ignore[no-any-return]
 
 
 def decode_access_token(token: str) -> dict[str, Any] | None:
@@ -90,6 +90,6 @@ def decode_access_token(token: str) -> dict[str, Any] | None:
     """
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-        return payload
+        return payload  # type: ignore[no-any-return]
     except JWTError:
         return None

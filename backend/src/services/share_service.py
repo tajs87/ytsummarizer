@@ -3,6 +3,7 @@ Service for managing shareable timestamp links.
 """
 
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -56,7 +57,7 @@ class ShareService:
         self,
         db: Session,
         token: str,
-    ) -> dict | None:
+    ) -> dict[str, Any] | None:
         """Get publicly accessible shared content by token."""
         link = (
             db.query(ShareableLink)

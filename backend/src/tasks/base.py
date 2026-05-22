@@ -83,4 +83,4 @@ class ProgressTask(Task):  # type: ignore[misc]
 
 
 # Make ProgressTask available for task decorators
-celery_app.Task = ProgressTask  # type: ignore
+celery_app.Task = ProgressTask

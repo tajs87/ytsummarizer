@@ -35,4 +35,4 @@ class Highlight(Base):  # type: ignore[misc]
     @property
     def duration(self) -> float:
         """Calculate duration of the highlight in seconds."""
-        return self.end_time - self.start_time
+        return float(self.end_time - self.start_time)
