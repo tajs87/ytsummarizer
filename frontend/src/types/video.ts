@@ -2,10 +2,7 @@
  * Type definitions for video entities and operations.
  */
 
-export type VideoStatus =  | 'PENDING'
-  | 'PROCESSING'
-  | 'COMPLETED'
-  | 'FAILED';
+export type VideoStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 export type Video = {
   id: number;
@@ -17,24 +14,24 @@ export type Video = {
   user_id: number;
   created_at: string;
   updated_at: string;
-}
+};
 
 export type VideoSubmitRequest = {
   url: string;
-}
+};
 
 export type VideoSubmitResponse = {
   id: number;
   url: string;
   status: VideoStatus;
   message: string;
-}
+};
 
 export type VideoListResponse = {
   videos: Video[];
   total: number;
-}
+};
 
 export type VideoDetailResponse = {
   has_transcription: boolean;
-} & Video
+} & Video;

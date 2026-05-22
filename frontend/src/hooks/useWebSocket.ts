@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 export type WebSocketMessage = {
   type: string;
   data: unknown;
-}
+};
 
 type UseWebSocketOptions = {
   onMessage?: (message: WebSocketMessage) => void;
@@ -18,7 +18,7 @@ type UseWebSocketOptions = {
   reconnect?: boolean;
   reconnectInterval?: number;
   reconnectAttempts?: number;
-}
+};
 
 export function useWebSocket(url: string | null, options: UseWebSocketOptions = {}) {
   const {
@@ -90,7 +90,16 @@ export function useWebSocket(url: string | null, options: UseWebSocketOptions = 
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error);
     }
-  }, [url, onMessage, onConnect, onDisconnect, onError, reconnect, reconnectInterval, reconnectAttempts]);
+  }, [
+    url,
+    onMessage,
+    onConnect,
+    onDisconnect,
+    onError,
+    reconnect,
+    reconnectInterval,
+    reconnectAttempts,
+  ]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {

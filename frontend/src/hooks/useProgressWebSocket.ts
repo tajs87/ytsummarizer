@@ -9,7 +9,7 @@ type UseProgressWebSocketOptions = {
   onProgress?: (update: ProgressUpdate) => void;
   onComplete?: () => void;
   onError?: (error: Error) => void;
-}
+};
 
 type WebSocketWithPing = WebSocket & { _pingInterval?: ReturnType<typeof setInterval> };
 
@@ -41,7 +41,7 @@ export function useProgressWebSocket({
 
     ws.onopen = () => {
       setIsConnected(true);
-      
+
       // Send periodic pings to keep connection alive
       const pingInterval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
@@ -100,7 +100,7 @@ export function useProgressWebSocket({
 
     ws.onclose = () => {
       setIsConnected(false);
-      
+
       // Clear ping interval
       if (ws._pingInterval) {
         clearInterval(ws._pingInterval);

@@ -14,13 +14,13 @@ export type Summary = {
   highlights: Highlight[];
   created_at: string;
   updated_at: string;
-}
+};
 
 export type SummaryRequest = {
   summary_type: SummaryType;
-}
+};
 
 export type SummaryListResponse = {
   summaries: Summary[];
   total: number;
-}
+};

@@ -8,13 +8,9 @@ type TimestampLinkProps = {
   timeInSeconds: number;
   onClick?: (timeInSeconds: number) => void;
   className?: string;
-}
+};
 
-export function TimestampLink({
-  timeInSeconds,
-  onClick,
-  className = '',
-}: TimestampLinkProps) {
+export function TimestampLink({ timeInSeconds, onClick, className = '' }: TimestampLinkProps) {
   const handleClick = () => {
     onClick?.(timeInSeconds);
   };

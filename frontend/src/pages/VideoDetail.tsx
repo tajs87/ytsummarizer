@@ -38,7 +38,9 @@ export function VideoDetail() {
               The requested video could not be found.
             </p>
             <button
-              onClick={() => { navigate('/'); }}
+              onClick={() => {
+                navigate('/');
+              }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Go Home
@@ -62,9 +64,7 @@ export function VideoDetail() {
             History
           </Link>
           <span>/</span>
-          <span className="text-gray-900 dark:text-white">
-            {video.title ?? 'Video'}
-          </span>
+          <span className="text-gray-900 dark:text-white">{video.title ?? 'Video'}</span>
         </nav>
 
         {/* Video info card */}
@@ -89,8 +89,8 @@ export function VideoDetail() {
                   video.status === 'COMPLETED'
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
                     : video.status === 'FAILED'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
-                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
                 }`}
               >
                 {video.status}
@@ -105,7 +105,8 @@ export function VideoDetail() {
             {video.duration_seconds && (
               <div>
                 <span className="font-medium">Duration:</span>{' '}
-                {Math.floor(video.duration_seconds / 60)} min {Math.floor(video.duration_seconds % 60)} sec
+                {Math.floor(video.duration_seconds / 60)} min{' '}
+                {Math.floor(video.duration_seconds % 60)} sec
               </div>
             )}
             <div>
@@ -165,7 +166,9 @@ export function VideoDetail() {
               {video.error_message ?? 'An error occurred during processing.'}
             </p>
             <button
-              onClick={() => { navigate('/'); }}
+              onClick={() => {
+                navigate('/');
+              }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Try Another Video

@@ -13,15 +13,9 @@ type HighlightsListProps = {
   onTimestampClick?: (timeInSeconds: number) => void;
 };
 
-export function HighlightsList({
-  videoId,
-  highlights,
-  onTimestampClick,
-}: HighlightsListProps) {
+export function HighlightsList({ videoId, highlights, onTimestampClick }: HighlightsListProps) {
   if (!highlights.length) {
-    return (
-      <p className="text-sm text-gray-500 dark:text-gray-400">No highlights available yet.</p>
-    );
+    return <p className="text-sm text-gray-500 dark:text-gray-400">No highlights available yet.</p>;
   }
 
   return (
@@ -44,9 +38,7 @@ export function HighlightsList({
                   timeInSeconds={highlight.end_time}
                   {...(onTimestampClick ? { onClick: onTimestampClick } : {})}
                 />
-                <span>
-                  ({formatTimestamp(highlight.end_time - highlight.start_time)})
-                </span>
+                <span>({formatTimestamp(highlight.end_time - highlight.start_time)})</span>
                 {typeof highlight.importance_score === 'number' && (
                   <span className="ml-2 px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                     Score: {Math.round(highlight.importance_score * 100)}%

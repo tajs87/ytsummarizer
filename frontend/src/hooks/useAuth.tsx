@@ -14,7 +14,7 @@ export type User = {
   email: string;
   is_active: boolean;
   created_at: string;
-}
+};
 
 type AuthContextType = {
   user: User | null;
@@ -24,13 +24,13 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type AuthProviderProps = {
   children: ReactNode;
-}
+};
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);

@@ -51,10 +51,7 @@ export function SharePage() {
             <div className="flex items-center text-sm text-gray-600 mt-2">
               <Clock className="h-4 w-4 mr-1" />
               <span>Timestamp: </span>
-              <TimestampLink
-                timeInSeconds={data.start_time}
-                className="ml-1"
-              />
+              <TimestampLink timeInSeconds={data.start_time} className="ml-1" />
               {data.end_time && (
                 <>
                   <span className="mx-1">-</span>

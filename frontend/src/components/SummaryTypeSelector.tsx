@@ -35,16 +35,16 @@ export function SummaryTypeSelector({
 }: SummaryTypeSelectorProps) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Summary Type
-      </label>
+      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Summary Type</label>
       <div className="grid sm:grid-cols-3 gap-2">
         {summaryTypeOptions.map((option) => (
           <button
             key={option.value}
             type="button"
             disabled={disabled}
-              onClick={() => { onChange(option.value); }}
+            onClick={() => {
+              onChange(option.value);
+            }}
             className={`text-left p-3 border rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               value === option.value
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-100'
@@ -52,7 +52,9 @@ export function SummaryTypeSelector({
             }`}
           >
             <div className="font-medium text-sm">{option.label}</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{option.description}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {option.description}
+            </div>
           </button>
         ))}
       </div>

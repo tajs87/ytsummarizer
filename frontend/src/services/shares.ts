@@ -4,11 +4,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from './api';
-import {
-  ShareLinkRequest,
-  ShareLinkResponse,
-  SharedContentResponse,
-} from '../types/share';
+import { ShareLinkRequest, ShareLinkResponse, SharedContentResponse } from '../types/share';
 
 export function useCreateShareLink(videoId: number) {
   return useMutation({

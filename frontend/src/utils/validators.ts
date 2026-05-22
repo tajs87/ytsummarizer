@@ -132,5 +132,8 @@ export function validateVideoUrl(url: string): {
     return { isValid: true, platform: 'direct' };
   }
 
-  return { isValid: false, error: 'Unsupported video URL. Use YouTube, Vimeo, or direct video file URL.' };
+  return {
+    isValid: false,
+    error: 'Unsupported video URL. Use YouTube, Vimeo, or direct video file URL.',
+  };
 }

@@ -16,13 +16,16 @@ type SummaryPanelProps = {
 export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
   const [selectedType, setSelectedType] = useState<SummaryType>('brief');
   const [isWaitingForSummary, setIsWaitingForSummary] = useState(false);
-  const { summaries, isLoading, isGenerating, generateSummary, generateError } = useSummary(videoId);
+  const { summaries, isLoading, isGenerating, generateSummary, generateError } =
+    useSummary(videoId);
 
-  const selectedSummary = [...summaries]
-    .filter((summary) => summary.summary_type === selectedType)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
-    ?? [...summaries]
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+  const selectedSummary =
+    [...summaries]
+      .filter((summary) => summary.summary_type === selectedType)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ??
+    [...summaries].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0];
 
   const handleGenerate = async () => {
     setIsWaitingForSummary(true);
@@ -52,11 +55,7 @@ export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
         </button>
       </div>
 
-      <SummaryTypeSelector
-        value={selectedType}
-        onChange={setSelectedType}
-        disabled={isBusy}
-      />
+      <SummaryTypeSelector value={selectedType} onChange={setSelectedType} disabled={isBusy} />
 
       {isBusy && (
         <p className="text-sm text-blue-600 dark:text-blue-400">
@@ -65,7 +64,9 @@ export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
       )}
 
       {generateError && (
-        <p className="text-sm text-red-600 dark:text-red-400">Failed to generate summary. Please try again.</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          Failed to generate summary. Please try again.
+        </p>
       )}
 
       {isLoading ? (
@@ -73,7 +74,9 @@ export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
       ) : selectedSummary ? (
         <>
           <div className="p-4 bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">{selectedSummary.content}</p>
+            <p className="whitespace-pre-wrap text-gray-900 dark:text-gray-100">
+              {selectedSummary.content}
+            </p>
           </div>
 
           <div className="space-y-2">

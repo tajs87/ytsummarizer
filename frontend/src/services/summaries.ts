@@ -24,7 +24,9 @@ export function useVideoSummaries(videoId: number) {
   return useQuery({
     queryKey: ['summaries', videoId],
     queryFn: async (): Promise<SummaryListResponse> => {
-      const response = await apiClient.get<SummaryListResponse>(`/api/v1/videos/${videoId}/summaries`);
+      const response = await apiClient.get<SummaryListResponse>(
+        `/api/v1/videos/${videoId}/summaries`
+      );
       return response.data;
     },
     enabled: !!videoId,

@@ -52,11 +52,7 @@ export function useSubmitVideo() {
 /**
  * Fetch list of user's videos with pagination and filtering.
  */
-export function useVideos(
-  page = 1,
-  pageSize = 20,
-  statusFilter?: VideoStatus
-) {
+export function useVideos(page = 1, pageSize = 20, statusFilter?: VideoStatus) {
   return useQuery({
     queryKey: [VIDEOS_KEY, page, pageSize, statusFilter],
     queryFn: async () => {
@@ -76,9 +72,7 @@ export function useVideos(
         page_size: number;
         is_guest_context?: boolean;
         history_scope?: 'account' | 'session';
-      }>(
-        `/api/v1/videos?${params.toString()}`
-      );
+      }>(`/api/v1/videos?${params.toString()}`);
 
       const normalized: VideoListResponse = {
         ...response.data,

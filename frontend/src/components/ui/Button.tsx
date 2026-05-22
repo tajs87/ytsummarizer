@@ -14,7 +14,8 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500',
         destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
-        outline: 'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus-visible:ring-gray-500',
+        outline:
+          'border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus-visible:ring-gray-500',
         secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-500',
         ghost: 'hover:bg-gray-100 text-gray-700 focus-visible:ring-gray-500',
         link: 'text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500',
@@ -33,16 +34,14 @@ const buttonVariants = cva(
   }
 );
 
-export type ButtonProps = Record<string, never> & ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>
+export type ButtonProps = Record<string, never> &
+  ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     );
   }
 );

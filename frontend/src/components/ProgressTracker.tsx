@@ -117,15 +117,11 @@ export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           {getStatusIcon()}
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Processing Video
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Processing Video</h3>
         </div>
         <div className="flex items-center space-x-2">
           <span
-            className={`w-2 h-2 rounded-full ${
-              isConnected ? 'bg-green-500' : 'bg-gray-400'
-            }`}
+            className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}
           />
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {isConnected ? 'Connected' : 'Disconnected'}
@@ -136,9 +132,7 @@ export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600 dark:text-gray-300">{message}</span>
-          <span className="font-medium text-gray-900 dark:text-white">
-            {progressPercent}%
-          </span>
+          <span className="font-medium text-gray-900 dark:text-white">{progressPercent}%</span>
         </div>
 
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">

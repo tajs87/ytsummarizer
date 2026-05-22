@@ -5,12 +5,7 @@
 
 export type VideoPlatform = 'YOUTUBE' | 'VIMEO' | 'DIRECT';
 
-export type VideoStatus = 
-  | 'PENDING' 
-  | 'EXTRACTING' 
-  | 'TRANSCRIBING' 
-  | 'COMPLETED' 
-  | 'FAILED';
+export type VideoStatus = 'PENDING' | 'EXTRACTING' | 'TRANSCRIBING' | 'COMPLETED' | 'FAILED';
 
 export type Video = {
   id: number;
@@ -24,11 +19,11 @@ export type Video = {
   created_at: string;
   completed_at: string | null;
   has_transcription: boolean;
-}
+};
 
 export type VideoSubmitRequest = {
   url: string;
-}
+};
 
 export type VideoListResponse = {
   videos: Video[];
@@ -37,7 +32,7 @@ export type VideoListResponse = {
   page_size: number;
   is_guest_context?: boolean;
   history_scope?: 'account' | 'session';
-}
+};
 
 export type TranscriptionSegment = {
   id: number;
@@ -45,7 +40,7 @@ export type TranscriptionSegment = {
   end: number;
   text: string;
   speaker?: string;
-}
+};
 
 export type Transcription = {
   id: number;
@@ -56,54 +51,54 @@ export type Transcription = {
   word_count: number;
   processing_time_seconds: number | null;
   created_at: string;
-}
+};
 
 export type TranscriptionSearchRequest = {
   query: string;
-}
+};
 
 export type TranscriptionSearchResult = {
   segment: TranscriptionSegment;
   match_count: number;
-}
+};
 
 export type TranscriptionSearchResponse = {
   query: string;
   total_matches: number;
   results: TranscriptionSearchResult[];
-}
+};
 
 export type ProgressUpdate = {
   progress: number;
   message: string;
   status: 'processing' | 'completed' | 'failed';
-}
+};
 
 export type AuthToken = {
   access_token: string;
   token_type: string;
   migrated_items?: number;
-}
+};
 
 export type User = {
   id: number;
   email: string;
   is_active: boolean;
   is_superuser: boolean;
-}
+};
 
 export type UserRegisterRequest = {
   email: string;
   password: string;
-}
+};
 
 export type UserLoginRequest = {
   email: string;
   password: string;
-}
+};
 
 export type ErrorResponse = {
   error_code: string;
   message: string;
   details?: Record<string, unknown>;
-}
+};

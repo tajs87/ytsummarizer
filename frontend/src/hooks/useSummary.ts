@@ -15,9 +15,7 @@ export function useSummary(videoId: number) {
   ) => {
     const matches = summaries
       .filter((summary) => summary.summary_type === summaryType)
-      .sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     return matches[0];
   };
 

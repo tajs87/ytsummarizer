@@ -10,12 +10,9 @@ import { ShareDialog } from '@/components/ShareDialog';
 type TranscriptionViewProps = {
   transcription: Transcription;
   videoTitle?: string;
-}
+};
 
-export function TranscriptionView({
-  transcription,
-  videoTitle,
-}: TranscriptionViewProps) {
+export function TranscriptionView({ transcription, videoTitle }: TranscriptionViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'full' | 'segments'>('segments');
   const searchMutation = useSearchTranscription(transcription.video_id);
@@ -66,10 +63,7 @@ export function TranscriptionView({
       `"${seg.text.replace(/"/g, '""')}"`, // Escape quotes
     ]);
 
-    const csv = [
-      headers.join(','),
-      ...rows.map((row) => row.join(',')),
-    ].join('\n');
+    const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -118,7 +112,9 @@ export function TranscriptionView({
   };
 
   const displaySegments = searchMutation.data
-    ? searchMutation.data.results.map((r: { segment: { id: number; start: number; end: number; text: string } }) => r.segment)
+    ? searchMutation.data.results.map(
+        (r: { segment: { id: number; start: number; end: number; text: string } }) => r.segment
+      )
     : transcription.segments;
 
   return (
@@ -131,8 +127,7 @@ export function TranscriptionView({
           </h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {transcription.word_count.toLocaleString()} words •{' '}
-            {transcription.language.toUpperCase()} •{' '}
-            {transcription.segments.length} segments
+            {transcription.language.toUpperCase()} • {transcription.segments.length} segments
           </p>
         </div>
 
@@ -175,7 +170,9 @@ export function TranscriptionView({
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => { setSearchQuery(e.target.value); }}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
           placeholder="Search within transcription..."
           className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
                    focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -208,7 +205,8 @@ export function TranscriptionView({
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
             Found {searchMutation.data.total_matches} result
-            {searchMutation.data.total_matches !== 1 ? 's' : ''} for &ldquo;{searchMutation.data.query}&rdquo;
+            {searchMutation.data.total_matches !== 1 ? 's' : ''} for &ldquo;
+            {searchMutation.data.query}&rdquo;
           </p>
         </div>
       )}
@@ -216,7 +214,9 @@ export function TranscriptionView({
       {/* View mode toggle */}
       <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
         <button
-          onClick={() => { setViewMode('segments'); }}
+          onClick={() => {
+            setViewMode('segments');
+          }}
           className={`px-4 py-2 font-medium transition-colors ${
             viewMode === 'segments'
               ? 'text-blue-600 border-b-2 border-blue-600'
@@ -226,7 +226,9 @@ export function TranscriptionView({
           Segments
         </button>
         <button
-          onClick={() => { setViewMode('full'); }}
+          onClick={() => {
+            setViewMode('full');
+          }}
           className={`px-4 py-2 font-medium transition-colors ${
             viewMode === 'full'
               ? 'text-blue-600 border-b-2 border-blue-600'
@@ -247,26 +249,28 @@ export function TranscriptionView({
           </div>
         ) : (
           <div className="space-y-4">
-            {displaySegments.map((segment: { id: number; start: number; end?: number; text: string }) => (
-              <div
-                key={segment.id}
-                className="flex gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
-              >
-                <div className="flex-shrink-0 text-sm font-mono text-gray-500 dark:text-gray-400">
-                  {formatTimestamp(segment.start)}
+            {displaySegments.map(
+              (segment: { id: number; start: number; end?: number; text: string }) => (
+                <div
+                  key={segment.id}
+                  className="flex gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                >
+                  <div className="flex-shrink-0 text-sm font-mono text-gray-500 dark:text-gray-400">
+                    {formatTimestamp(segment.start)}
+                  </div>
+                  <p className="flex-1 text-gray-900 dark:text-gray-100">
+                    {highlightText(segment.text, searchQuery)}
+                  </p>
+                  <div className="flex-shrink-0">
+                    <ShareDialog
+                      videoId={transcription.video_id}
+                      startTime={segment.start}
+                      {...(typeof segment.end === 'number' ? { endTime: segment.end } : {})}
+                    />
+                  </div>
                 </div>
-                <p className="flex-1 text-gray-900 dark:text-gray-100">
-                  {highlightText(segment.text, searchQuery)}
-                </p>
-                <div className="flex-shrink-0">
-                  <ShareDialog
-                    videoId={transcription.video_id}
-                    startTime={segment.start}
-                    {...(typeof segment.end === 'number' ? { endTime: segment.end } : {})}
-                  />
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         )}
       </div>

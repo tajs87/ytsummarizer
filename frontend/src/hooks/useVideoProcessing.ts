@@ -10,12 +10,8 @@ import { VideoSubmitRequest, VideoSubmitResponse } from '../types/video';
 
 export function useVideoProcessing() {
   const queryClient = useQueryClient();
-  const {
-    addProcessingVideo,
-    removeProcessingVideo,
-    updateVideoStatus,
-    updateVideoProgress,
-  } = useVideoStore();
+  const { addProcessingVideo, removeProcessingVideo, updateVideoStatus, updateVideoProgress } =
+    useVideoStore();
 
   const submitVideo = useMutation({
     mutationFn: async (data: VideoSubmitRequest): Promise<VideoSubmitResponse> => {
@@ -25,7 +21,7 @@ export function useVideoProcessing() {
     onSuccess: (data) => {
       // Add video to processing queue
       addProcessingVideo(data.id);
-      
+
       // Invalidate videos list to refetch
       void queryClient.invalidateQueries({ queryKey: ['videos'] });
     },
@@ -35,9 +31,12 @@ export function useVideoProcessing() {
     updateVideoProgress(videoId, progress);
   };
 
-  const updateStatus = (videoId: number, status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED') => {
+  const updateStatus = (
+    videoId: number,
+    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  ) => {
     updateVideoStatus(videoId, status);
-    
+
     // Remove from processing queue if completed or failed
     if (status === 'COMPLETED' || status === 'FAILED') {
       removeProcessingVideo(videoId);

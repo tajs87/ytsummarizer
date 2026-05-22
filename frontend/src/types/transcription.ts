@@ -7,7 +7,7 @@ export type TranscriptionSegment = {
   start_time: number;
   end_time: number;
   text: string;
-}
+};
 
 export type Transcription = {
   id: number;
@@ -17,16 +17,16 @@ export type Transcription = {
   segments: TranscriptionSegment[];
   created_at: string;
   updated_at: string;
-}
+};
 
 export type TranscriptionResponse = {
   transcription: Transcription;
-}
+};
 
 export type TranscriptionSearchRequest = {
   query: string;
   max_results?: number;
-}
+};
 
 export type TranscriptionSearchResult = {
   segment_id: number;
@@ -34,11 +34,11 @@ export type TranscriptionSearchResult = {
   start_time: number;
   end_time: number;
   match_score: number;
-}
+};
 
 export type TranscriptionSearchResponse = {
   results: TranscriptionSearchResult[];
   total: number;
-}
+};
 
 export type ExportFormat = 'txt' | 'json' | 'csv';

@@ -8,7 +8,7 @@ import { validateVideoUrl } from '@/utils/validators';
 
 type VideoInputProps = {
   onSubmitSuccess?: (videoId: number) => void;
-}
+};
 
 export function VideoInput({ onSubmitSuccess }: VideoInputProps) {
   const [url, setUrl] = useState('');
@@ -24,7 +24,7 @@ export function VideoInput({ onSubmitSuccess }: VideoInputProps) {
 
     try {
       const video = await submitVideo.mutateAsync({ url: url.trim() });
-      
+
       // Clear input
       setUrl('');
 
@@ -51,7 +51,9 @@ export function VideoInput({ onSubmitSuccess }: VideoInputProps) {
             id="video-url"
             type="url"
             value={url}
-            onChange={(e) => { setUrl(e.target.value); }}
+            onChange={(e) => {
+              setUrl(e.target.value);
+            }}
             placeholder="https://www.youtube.com/watch?v=..."
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -65,7 +67,12 @@ export function VideoInput({ onSubmitSuccess }: VideoInputProps) {
           )}
           {url.trim() && validation.isValid && validation.platform && (
             <p className="mt-2 text-sm text-green-700 dark:text-green-400">
-              Detected platform: {validation.platform === 'youtube' ? 'YouTube' : validation.platform === 'vimeo' ? 'Vimeo' : 'Direct video'}
+              Detected platform:{' '}
+              {validation.platform === 'youtube'
+                ? 'YouTube'
+                : validation.platform === 'vimeo'
+                  ? 'Vimeo'
+                  : 'Direct video'}
             </p>
           )}
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">

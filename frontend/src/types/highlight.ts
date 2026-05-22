@@ -10,9 +10,9 @@ export type Highlight = {
   end_time: number;
   importance_score: number | null;
   created_at: string;
-}
+};
 
 export type HighlightListResponse = {
   highlights: Highlight[];
   total: number;
-}
+};
