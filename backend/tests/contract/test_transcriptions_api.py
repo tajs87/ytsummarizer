@@ -63,6 +63,7 @@ def test_get_transcription_contract():
         return user
 
     app.dependency_overrides[deps.get_db] = fake_get_db
+    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
     app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
 
     client = TestClient(app)

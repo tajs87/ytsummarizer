@@ -86,6 +86,7 @@ def test_video_submission_flow_creates_pending_video(monkeypatch):
     monkeypatch.setattr("src.api.v1.videos.transcribe_audio_task", FakeTask())
 
     app.dependency_overrides[deps.get_db] = fake_get_db
+    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
     app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
 
     client = TestClient(app)

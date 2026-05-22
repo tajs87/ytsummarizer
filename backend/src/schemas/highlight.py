@@ -1,10 +1,10 @@
-"""
+"""  
 Pydantic schemas for highlight API requests and responses.
 """
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class HighlightBase(BaseModel):
@@ -19,12 +19,11 @@ class HighlightBase(BaseModel):
 class HighlightResponse(HighlightBase):
     """Schema for highlight response."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     summary_id: int
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class HighlightListResponse(BaseModel):

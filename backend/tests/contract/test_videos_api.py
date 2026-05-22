@@ -101,6 +101,7 @@ def test_post_videos_contract(monkeypatch):
     monkeypatch.setattr("src.api.v1.videos.transcribe_audio_task", FakeTask())
 
     app.dependency_overrides[deps.get_db] = fake_get_db
+    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
     app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
 
     client = TestClient(app)
@@ -142,6 +143,7 @@ def test_get_video_by_id_contract(monkeypatch):
         return user
 
     app.dependency_overrides[deps.get_db] = fake_get_db
+    app.dependency_overrides[deps.get_current_user] = fake_get_current_user
     app.dependency_overrides[deps.get_current_active_user] = fake_get_current_user
 
     client = TestClient(app)

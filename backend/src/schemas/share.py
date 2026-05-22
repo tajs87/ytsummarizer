@@ -1,10 +1,10 @@
-"""
+"""  
 Pydantic schemas for shareable link API requests and responses.
 """
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ShareLinkRequest(BaseModel):
@@ -19,6 +19,8 @@ class ShareLinkRequest(BaseModel):
 class ShareLinkResponse(BaseModel):
     """Response schema for shareable link."""
 
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     video_id: int
     token: str
@@ -29,9 +31,6 @@ class ShareLinkResponse(BaseModel):
     is_active: bool
     created_at: datetime
     expires_at: datetime | None
-
-    class Config:
-        from_attributes = True
 
 
 class ShareLinkPublicResponse(BaseModel):
