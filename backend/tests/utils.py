@@ -17,13 +17,13 @@ def create_test_user(
 ) -> User:
     """
     Create a test user with given parameters.
-    
+
     Args:
         db: Database session
         email: User email
         password: Plain text password
         **kwargs: Additional user fields
-    
+
     Returns:
         Created user instance
     """
@@ -34,25 +34,25 @@ def create_test_user(
         "is_superuser": False,
     }
     user_data.update(kwargs)
-    
+
     user = User(**user_data)
     db.add(user)
     db.commit()
     db.refresh(user)
-    
+
     return user
 
 
 def get_test_token(user_email: str) -> str:
     """
     Generate a test JWT token for a user.
-    
+
     Args:
         user_email: Email of user to generate token for
-    
+
     Returns:
         JWT token string
     """
     from src.core.security import create_access_token
-    
+
     return create_access_token(data={"sub": user_email})

@@ -40,10 +40,10 @@ def register(
 ) -> User:
     """
     Register a new user account.
-    
+
     - **email**: Valid email address (unique)
     - **password**: Minimum 8 characters
-    
+
     Returns user profile on success.
     """
     # Check if email already exists
@@ -57,7 +57,7 @@ def register(
                 "details": {"email": user_data.email},
             },
         )
-    
+
     # Create new user
     user = User(
         email=user_data.email,
@@ -68,7 +68,7 @@ def register(
     db.add(user)
     db.commit()
     db.refresh(user)
-    
+
     return user
 
 
@@ -86,19 +86,19 @@ def login(
 ) -> TokenResponse:
     """
     Authenticate user and return JWT access token.
-    
+
     - **email**: Registered email address
     - **password**: User password
-    
+
     Returns JWT token for authenticated requests.
     """
     # Find user by email
     user = db.query(User).filter(User.email == credentials.email).first()
-    
+
     # Verify password
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise InvalidCredentialsError()
-    
+
     # Check if user is active
     if not user.is_active:
         raise HTTPException(
@@ -109,7 +109,7 @@ def login(
                 "details": {},
             },
         )
-    
+
     # Create access token
     access_token = create_access_token(data={"sub": user.email})
 
@@ -143,7 +143,7 @@ def get_current_user_profile(
 ) -> User:
     """
     Get current authenticated user's profile.
-    
+
     Requires valid JWT token in Authorization header.
     """
     return current_user

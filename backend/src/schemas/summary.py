@@ -3,13 +3,14 @@ Pydantic schemas for summary API requests and responses.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
+
 from pydantic import BaseModel, Field
 
 from src.schemas.highlight import HighlightResponse
 
 
-class SummaryType(str, Enum):
+class SummaryType(StrEnum):
     """Supported summary generation types."""
 
     BRIEF = "brief"

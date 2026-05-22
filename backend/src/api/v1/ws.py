@@ -24,16 +24,16 @@ async def progress_websocket(
 ) -> None:
     """
     WebSocket endpoint for receiving real-time task progress updates.
-    
+
     Client connects with Celery task_id to receive progress messages.
-    
+
     Message format:
     {
         "progress": 45,
         "message": "Transcribing audio...",
         "status": "processing"
     }
-    
+
     Usage:
         ws = new WebSocket('ws://localhost:8000/api/v1/ws/progress/{task_id}')
         ws.onmessage = (event) => {
@@ -96,7 +96,7 @@ async def progress_websocket(
 
             if payload["status"] in {"completed", "failed"}:
                 break
-    
+
     except WebSocketDisconnect:
         pass
     finally:

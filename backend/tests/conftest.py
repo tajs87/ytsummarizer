@@ -16,10 +16,10 @@ from src.models.user import User  # noqa: F401 - imported for table creation
 def test_db() -> Session:
     """
     Create a test database session with isolated transaction.
-    
+
     Each test gets a fresh database with all tables created.
     Changes are rolled back after the test completes.
-    
+
     Yields:
         Database session for testing
     """
@@ -29,14 +29,14 @@ def test_db() -> Session:
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     # Create session
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = TestingSessionLocal()
-    
+
     try:
         yield session
     finally:
@@ -48,15 +48,15 @@ def test_db() -> Session:
 def test_user(test_db: Session) -> User:
     """
     Create a test user for authentication tests.
-    
+
     Args:
         test_db: Test database session
-    
+
     Returns:
         User instance
     """
     from src.core.security import get_password_hash
-    
+
     user = User(
         email="test@example.com",
         hashed_password=get_password_hash("testpassword123"),
@@ -66,7 +66,7 @@ def test_user(test_db: Session) -> User:
     test_db.add(user)
     test_db.commit()
     test_db.refresh(user)
-    
+
     return user
 
 
@@ -74,15 +74,15 @@ def test_user(test_db: Session) -> User:
 def test_superuser(test_db: Session) -> User:
     """
     Create a test superuser for admin tests.
-    
+
     Args:
         test_db: Test database session
-    
+
     Returns:
         Superuser instance
     """
     from src.core.security import get_password_hash
-    
+
     user = User(
         email="admin@example.com",
         hashed_password=get_password_hash("adminpassword123"),
@@ -92,7 +92,7 @@ def test_superuser(test_db: Session) -> User:
     test_db.add(user)
     test_db.commit()
     test_db.refresh(user)
-    
+
     return user
 
 

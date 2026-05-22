@@ -4,13 +4,14 @@ Identifies important segments with timestamps for quick navigation.
 """
 
 import asyncio
+
 from sqlalchemy.orm import Session
 
+from src.core.errors import SummaryNotFoundError, VideoNotFoundError
 from src.db.session import SessionLocal
+from src.models.highlight import Highlight
 from src.models.summary import Summary
 from src.models.transcription import Transcription
-from src.models.highlight import Highlight
-from src.core.errors import SummaryNotFoundError, VideoNotFoundError
 from src.services.summarization_service import summarization_service
 from src.tasks.app import celery_app
 

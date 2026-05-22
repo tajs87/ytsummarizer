@@ -2,7 +2,7 @@
 Main FastAPI application entry point.
 Configures middleware, routes, and error handlers.
 """
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.api.middleware import RateLimitMiddleware, configure_cors
@@ -29,7 +29,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(guest.router, prefix="/api/v1")
 
 # Video and transcription routers
-from src.api.v1 import videos, transcriptions, ws, summaries, shares  # noqa: E402
+from src.api.v1 import shares, summaries, transcriptions, videos, ws  # noqa: E402
 
 app.include_router(videos.router, prefix="/api/v1")
 app.include_router(transcriptions.router, prefix="/api/v1")

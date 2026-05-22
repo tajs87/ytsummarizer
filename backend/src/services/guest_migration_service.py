@@ -1,7 +1,7 @@
 """Service for atomic migration of guest-owned videos to authenticated users."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -26,7 +26,7 @@ class GuestMigrationService:
         )
 
         guest_session.is_active = False
-        guest_session.migrated_at = datetime.now(timezone.utc)
+        guest_session.migrated_at = datetime.now(UTC)
         db.commit()
         return updated_count
 

@@ -1,8 +1,8 @@
 """
 FastAPI middleware for CORS and rate limiting.
 """
-from datetime import datetime, timedelta, timezone
-from typing import Callable
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 
 from fastapi import Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +21,7 @@ settings = get_settings()
 def configure_cors(app: object) -> None:
     """
     Configure CORS middleware for the application.
-    
+
     Args:
         app: FastAPI application instance
     """
@@ -37,7 +37,7 @@ def configure_cors(app: object) -> None:
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """
     Middleware to enforce per-user rate limits on video processing.
-    
+
     Constitution requirement: 10 videos/hour per user (FR-010)
     Only applies to video submission endpoints.
     """
@@ -59,7 +59,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             if auth_header and auth_header.startswith("Bearer "):
                 token = auth_header.split(" ")[1]
                 payload = decode_access_token(token)
-                
+
                 if payload:
                     email = payload.get("sub")
                     if email:
@@ -69,12 +69,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                             user = db.query(User).filter(User.email == email).first()
                             if user:
                                 # Reset counter if hour has passed
-                                now = datetime.now(timezone.utc)
+                                now = datetime.now(UTC)
                                 if now >= user.rate_limit_reset_at:
                                     user.videos_processed_current_hour = 0
                                     user.rate_limit_reset_at = now + timedelta(hours=1)
                                     db.commit()
-                                
+
                                 # Check if limit exceeded
                                 if user.videos_processed_current_hour >= settings.rate_limit_videos_per_hour:
                                     return JSONResponse(
@@ -89,13 +89,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                                             },
                                         },
                                     )
-                                
+
                                 # Increment counter
                                 user.videos_processed_current_hour += 1
                                 db.commit()
                         finally:
                             db.close()
-        
+
         # Proceed with request
         response = await call_next(request)
         return response

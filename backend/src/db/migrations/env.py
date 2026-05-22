@@ -6,11 +6,11 @@ from sqlalchemy import engine_from_config, pool
 
 from src.core.config import get_settings
 from src.db.session import Base
+from src.models.transcription import Transcription  # noqa: F401
 
 # Import all models here to ensure they're registered with SQLAlchemy Base
 from src.models.user import User  # noqa: F401
 from src.models.video import Video  # noqa: F401
-from src.models.transcription import Transcription  # noqa: F401
 
 # this is the Alembic Config object
 config = context.config

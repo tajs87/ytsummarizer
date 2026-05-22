@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from src.models.video import VideoPlatform
 from src.services.video_extractor import VideoExtractor

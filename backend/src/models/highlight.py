@@ -3,9 +3,9 @@ Highlight model for storing key moments extracted from video transcriptions.
 Each highlight represents an important quote or segment with timestamp references.
 """
 
-from datetime import datetime, timezone
-from typing import Optional
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey
+from datetime import UTC, datetime
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
 
 from src.db.session import Base
@@ -13,7 +13,7 @@ from src.db.session import Base
 
 class Highlight(Base):
     """Key moment or important quote from video transcription."""
-    
+
     __tablename__ = "highlights"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -22,7 +22,7 @@ class Highlight(Base):
     start_time = Column(Float, nullable=False)  # Timestamp in seconds
     end_time = Column(Float, nullable=False)  # Timestamp in seconds
     importance_score = Column(Float, nullable=True)  # 0.0-1.0 relevance score
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
 
     # Relationships
     summary = relationship("Summary", back_populates="highlights")

@@ -2,7 +2,7 @@
 Platform-specific URL validators for video submission.
 """
 
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from src.models.video import VideoPlatform
 

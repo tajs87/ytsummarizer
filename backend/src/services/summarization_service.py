@@ -4,6 +4,7 @@ Uses OpenAI GPT models for intelligent content analysis.
 """
 
 from typing import Any
+
 from openai import AsyncOpenAI
 
 from src.core.config import get_settings
@@ -69,7 +70,7 @@ class SummarizationService:
             return response.choices[0].message.content.strip()
 
         except Exception as e:
-            raise TranscriptionFailedError(f"Summarization failed: {str(e)}")
+            raise TranscriptionFailedError(f"Summarization failed: {str(e)}") from e
 
     async def extract_highlights(
         self,

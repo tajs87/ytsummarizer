@@ -31,10 +31,10 @@ Base = declarative_base()
 def get_db() -> Generator[Session, None, None]:
     """
     Dependency that provides a database session.
-    
+
     Yields:
         Database session that auto-commits on success and rolls back on error.
-    
+
     Example:
         @app.get("/items")
         def get_items(db: Session = Depends(get_db)):

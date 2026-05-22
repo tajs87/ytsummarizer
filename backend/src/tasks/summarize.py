@@ -4,14 +4,14 @@ Processes completed transcriptions and creates summary records.
 """
 
 import asyncio
-from celery import chain
+
 from sqlalchemy.orm import Session
 
+from src.core.errors import TranscriptionFailedError, VideoNotFoundError
 from src.db.session import SessionLocal
-from src.models.video import Video
-from src.models.transcription import Transcription
 from src.models.summary import Summary, SummaryType
-from src.core.errors import VideoNotFoundError, TranscriptionFailedError
+from src.models.transcription import Transcription
+from src.models.video import Video
 from src.services.summarization_service import summarization_service
 from src.tasks.app import celery_app
 
@@ -83,7 +83,7 @@ def generate_summary_task(
 
     except Exception as e:
         db.rollback()
-        raise TranscriptionFailedError(f"Summary generation failed: {str(e)}")
+        raise TranscriptionFailedError(f"Summary generation failed: {str(e)}") from e
 
     finally:
         db.close()

@@ -1,5 +1,5 @@
+from datetime import UTC, datetime
 from types import SimpleNamespace
-from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
 
@@ -50,7 +50,7 @@ class FakeDBSession:
             obj.id = self.next_id
             self.next_id += 1
         if getattr(obj, "created_at", None) is None:
-            obj.created_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
         self.videos.append(obj)
 
     def commit(self):
@@ -61,7 +61,7 @@ class FakeDBSession:
             obj.id = self.next_id
             self.next_id += 1
         if getattr(obj, "created_at", None) is None:
-            obj.created_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
 
 
 class FakeSig:
@@ -127,7 +127,7 @@ def test_get_video_by_id_contract(monkeypatch):
         status=VideoStatus.COMPLETED,
         task_id="task-1",
         title="Test",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     fake_db.videos.append(video)
 

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 
@@ -54,7 +54,7 @@ def test_transcription_retrieval_and_search_flow():
         ],
         language="en",
         word_count=4,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
     db = FakeDBSession(video, transcription)

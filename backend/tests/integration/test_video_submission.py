@@ -1,5 +1,5 @@
+from datetime import UTC, datetime
 from types import SimpleNamespace
-from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
 
@@ -35,7 +35,7 @@ class FakeDBSession:
             obj.id = self.next_id
             self.next_id += 1
         if getattr(obj, "created_at", None) is None:
-            obj.created_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
         self.videos.append(obj)
 
     def commit(self):
@@ -46,7 +46,7 @@ class FakeDBSession:
             obj.id = self.next_id
             self.next_id += 1
         if getattr(obj, "created_at", None) is None:
-            obj.created_at = datetime.now(timezone.utc)
+            obj.created_at = datetime.now(UTC)
 
 
 class FakeSig:

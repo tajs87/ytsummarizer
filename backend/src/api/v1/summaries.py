@@ -3,21 +3,21 @@ Summary API endpoints for AI-powered video summarization.
 Provides summary generation and retrieval operations.
 """
 
+from celery import chain
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from celery import chain
 
 from src.api.deps import RequestContext, get_request_context
 from src.db.session import get_db
-from src.models.video import Video
 from src.models.summary import Summary
+from src.models.video import Video
 from src.schemas.summary import (
+    SummaryListResponse,
     SummaryRequest,
     SummaryResponse,
-    SummaryListResponse,
 )
-from src.tasks.summarize import generate_summary_task
 from src.tasks.extract_highlights import extract_highlights_task
+from src.tasks.summarize import generate_summary_task
 
 router = APIRouter(prefix="/videos", tags=["summaries"])
 

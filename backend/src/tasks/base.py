@@ -11,10 +11,10 @@ from src.tasks.app import celery_app
 class ProgressTask(Task):
     """
     Base task class that supports progress tracking.
-    
+
     Subclasses can call self.update_progress() to emit progress updates
     that will be sent to clients via WebSocket.
-    
+
     Example:
         @app.task(base=ProgressTask, bind=True)
         def my_task(self, video_id: int):
@@ -34,7 +34,7 @@ class ProgressTask(Task):
     ) -> None:
         """
         Update task progress.
-        
+
         Args:
             progress: Progress percentage (0-100)
             stage: Current processing stage name
@@ -61,7 +61,7 @@ class ProgressTask(Task):
     ) -> None:
         """
         Handle task failure by updating state.
-        
+
         Args:
             exc: Exception that caused failure
             task_id: Task ID

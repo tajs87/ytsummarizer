@@ -16,9 +16,9 @@ class ErrorDetail(BaseModel):
 class ErrorResponse(BaseModel):
     """
     Standard error response format.
-    
+
     Per constitution requirement: Errors must be actionable with clear codes.
-    
+
     Example:
         {
             "error_code": "VID-001",
@@ -55,7 +55,7 @@ class ValidationErrorDetail(BaseModel):
 class ValidationErrorResponse(BaseModel):
     """
     Response for request validation errors (422).
-    
+
     FastAPI returns this automatically for Pydantic validation errors.
     """
 

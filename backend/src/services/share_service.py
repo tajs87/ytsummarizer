@@ -2,12 +2,13 @@
 Service for managing shareable timestamp links.
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy.orm import Session
 
 from src.models.shareable_link import ShareableLink
-from src.models.video import Video
 from src.models.transcription import Transcription
+from src.models.video import Video
 from src.utils.token_generator import generate_share_token
 
 
@@ -33,7 +34,7 @@ class ShareService:
         # Calculate expiration
         expires_at = None
         if expires_in_hours:
-            expires_at = datetime.now(timezone.utc) + timedelta(hours=expires_in_hours)
+            expires_at = datetime.now(UTC) + timedelta(hours=expires_in_hours)
 
         link = ShareableLink(
             video_id=video_id,
@@ -59,14 +60,14 @@ class ShareService:
         """Get publicly accessible shared content by token."""
         link = db.query(ShareableLink).filter(
             ShareableLink.token == token,
-            ShareableLink.is_active == True,
+            ShareableLink.is_active,
         ).first()
 
         if not link:
             return None
 
         # Check expiration
-        if link.expires_at and link.expires_at < datetime.now(timezone.utc):
+        if link.expires_at and link.expires_at < datetime.now(UTC):
             return None
 
         # Get related video and transcription

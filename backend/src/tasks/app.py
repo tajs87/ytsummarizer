@@ -32,4 +32,4 @@ celery_app.conf.update(
 celery_app.autodiscover_tasks(["src.tasks"])
 
 # Import tasks to ensure they're registered
-from src.tasks import extract, transcribe, summarize, extract_highlights  # noqa: E402, F401
+from src.tasks import extract, extract_highlights, summarize, transcribe  # noqa: E402, F401

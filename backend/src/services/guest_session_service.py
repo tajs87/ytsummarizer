@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import secrets
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -38,7 +38,7 @@ class GuestSessionService:
         raw_token = token or self.generate_token()
         token_hash = self._hash_token(raw_token)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         guest_session = GuestSession(
             token_hash=token_hash,
             created_at=now,
@@ -54,7 +54,7 @@ class GuestSessionService:
 
     def get_active_session(self, db: Session, token: str) -> GuestSession | None:
         token_hash = self._hash_token(token)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         session = (
             db.query(GuestSession)
@@ -72,7 +72,7 @@ class GuestSessionService:
         return session
 
     def touch_session(self, db: Session, session: GuestSession) -> GuestSession:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         session.last_seen_at = now
         session.expires_at = now + timedelta(seconds=self.settings.guest_session_max_age_seconds)
         db.commit()

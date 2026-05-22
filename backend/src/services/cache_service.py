@@ -25,7 +25,7 @@ CACHE_TTL_SECONDS = 7 * 24 * 60 * 60  # 7 days
 class CacheService:
     """
     Redis cache service for storing transcription results.
-    
+
     Uses video URL hash as cache key for deduplication.
     """
 
@@ -35,13 +35,13 @@ class CacheService:
     async def get_transcription(self, url_hash: str) -> dict[str, Any] | None:
         """
         Retrieve cached transcription by URL hash.
-        
+
         Args:
             url_hash: SHA256 hash of video URL
-        
+
         Returns:
             Cached transcription data or None if not found
-        
+
         Example:
             >>> cache = CacheService()
             >>> data = await cache.get_transcription("abc123...")
@@ -50,7 +50,7 @@ class CacheService:
         """
         key = f"transcription:{url_hash}"
         cached_data = await self.client.get(key)
-        
+
         if cached_data:
             return json.loads(cached_data)
         return None
@@ -60,11 +60,11 @@ class CacheService:
     ) -> None:
         """
         Cache transcription data with 7-day TTL.
-        
+
         Args:
             url_hash: SHA256 hash of video URL
             transcription_data: Transcription data to cache
-        
+
         Example:
             >>> cache = CacheService()
             >>> await cache.set_transcription("abc123...", {
@@ -82,7 +82,7 @@ class CacheService:
     async def invalidate_transcription(self, url_hash: str) -> None:
         """
         Remove cached transcription.
-        
+
         Args:
             url_hash: SHA256 hash of video URL to invalidate
         """
@@ -92,16 +92,16 @@ class CacheService:
     async def get_video_metadata(self, url_hash: str) -> dict[str, Any] | None:
         """
         Retrieve cached video metadata.
-        
+
         Args:
             url_hash: SHA256 hash of video URL
-        
+
         Returns:
             Cached metadata or None
         """
         key = f"video_meta:{url_hash}"
         cached_data = await self.client.get(key)
-        
+
         if cached_data:
             return json.loads(cached_data)
         return None
@@ -111,7 +111,7 @@ class CacheService:
     ) -> None:
         """
         Cache video metadata (title, duration, etc.).
-        
+
         Args:
             url_hash: SHA256 hash of video URL
             metadata: Video metadata to cache

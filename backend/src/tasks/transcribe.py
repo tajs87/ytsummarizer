@@ -25,17 +25,17 @@ def transcribe_audio_task(
 ) -> dict[str, int]:
     """
     Transcribe audio file and save results to database.
-    
+
     Args:
         extract_result: Result dict from extract_video_task containing:
             - audio_path: Path to audio file
             - video_id: Database ID of video
             - duration_seconds: Video duration
         video_id: Database ID of video (passed from chain)
-    
+
     Returns:
         Dictionary with transcription_id
-    
+
     Workflow:
         1. Update video status to TRANSCRIBING
         2. Transcribe audio using OpenAI Whisper
@@ -43,18 +43,18 @@ def transcribe_audio_task(
         4. Cache transcription result
         5. Update video status to COMPLETED
         6. Clean up temp audio file
-    
+
     Raises:
         TranscriptionFailedError: If transcription fails
     """
     # Unpack extract result
     audio_path = extract_result["audio_path"]
-    duration_seconds = extract_result.get("duration_seconds", 0)
-    
+    extract_result.get("duration_seconds", 0)
+
     db: Session = SessionLocal()
     video: Video | None = None
     audio_file = Path(audio_path)
-    
+
     try:
         # Fetch video from database
         video = db.query(Video).filter(Video.id == video_id).first()
@@ -63,30 +63,30 @@ def transcribe_audio_task(
                 message=f"Video {video_id} not found in database",
                 details={"video_id": video_id},
             )
-        
+
         # Update status to TRANSCRIBING
         video.status = VideoStatus.TRANSCRIBING
         db.commit()
         self.update_progress(10, "Starting transcription...")
-        
+
         # Validate audio file
         if not audio_file.exists():
             raise TranscriptionFailedError(
                 message="Audio file not found",
                 details={"audio_path": audio_path},
             )
-        
+
         self.update_progress(20, "Transcribing audio with OpenAI Whisper...")
-        
+
         # Transcribe audio (run async function in sync context)
         start_time = datetime.now()
         transcription_result = asyncio.run(
             transcription_service.transcribe_audio(audio_file)
         )
         processing_time = (datetime.now() - start_time).total_seconds()
-        
+
         self.update_progress(70, "Saving transcription...")
-        
+
         # Create Transcription record
         transcription = Transcription(
             video_id=video_id,
@@ -97,14 +97,14 @@ def transcribe_audio_task(
             processing_time_seconds=processing_time,
         )
         db.add(transcription)
-        
+
         # Update video status to COMPLETED
         video.status = VideoStatus.COMPLETED
         video.completed_at = datetime.now()
         db.commit()
-        
+
         self.update_progress(90, "Caching transcription...")
-        
+
         # Cache transcription result
         _cache_transcription_sync(
             cache_service,
@@ -116,42 +116,43 @@ def transcribe_audio_task(
                 "word_count": transcription.word_count,
             },
         )
-        
+
         self.update_progress(100, "Transcription complete!")
-        
+
         return {
             "transcription_id": transcription.id,
             "video_id": video_id,
             "word_count": transcription.word_count,
         }
-    
+
     except Exception as e:
         # Update video status to FAILED
         if video:
             video.status = VideoStatus.FAILED
             video.error_message = str(e)
             db.commit()
-        
+
         raise TranscriptionFailedError(
             message=f"Transcription failed: {str(e)}",
             details={"video_id": video_id, "error": str(e)},
-        )
-    
+        ) from e
+
     finally:
         # Clean up temp audio file
         if audio_file.exists():
             audio_file.unlink()
-        
+
         # Clean up temp directory if empty
         if audio_file.parent.exists() and not list(audio_file.parent.iterdir()):
             audio_file.parent.rmdir()
-        
+
         db.close()
 
 
 def _cache_transcription_sync(cache, url_hash: str, data: dict) -> None:
     """Synchronous cache operation for Celery."""
     import json
+
     import redis
 
     from src.core.config import get_settings

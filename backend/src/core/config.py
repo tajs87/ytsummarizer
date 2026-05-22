@@ -21,13 +21,13 @@ class Settings(BaseSettings):
 
     # Database
     database_url: PostgresDsn
-    
+
     # Redis
     redis_url: RedisDsn
-    
+
     # OpenAI API
     openai_api_key: str = Field(..., min_length=1)
-    
+
     # Security
     secret_key: str = Field(..., min_length=32)
     algorithm: str = "HS256"
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     guest_session_max_age_seconds: int = 86400
     guest_session_secure_cookie: bool = False
     guest_session_same_site: Literal["lax", "strict", "none"] = "lax"
-    
+
     # Application
     debug: bool = False
     allowed_origins: list[str] = Field(
@@ -44,14 +44,14 @@ class Settings(BaseSettings):
     )
     max_video_duration_hours: int = 3
     rate_limit_videos_per_hour: int = 10
-    
+
     # Celery
     celery_broker_url: RedisDsn | None = None
     celery_result_backend: RedisDsn | None = None
-    
+
     # Storage
     temp_storage_path: str = "/tmp/ytsum"
-    
+
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 

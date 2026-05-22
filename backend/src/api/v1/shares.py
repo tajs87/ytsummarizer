@@ -10,9 +10,9 @@ from src.db.session import get_db
 from src.models.user import User
 from src.models.video import Video
 from src.schemas.share import (
+    ShareLinkPublicResponse,
     ShareLinkRequest,
     ShareLinkResponse,
-    ShareLinkPublicResponse,
 )
 from src.services.share_service import share_service
 

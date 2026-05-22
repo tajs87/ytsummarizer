@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 
@@ -50,7 +50,7 @@ def test_get_transcription_contract():
         segments=[{"id": 0, "start": 0.0, "end": 1.5, "text": "hello world"}],
         language="en",
         word_count=2,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db = FakeDBSession(video, transcription)
 

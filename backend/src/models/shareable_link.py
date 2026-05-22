@@ -3,8 +3,9 @@ Shareable link model for timestamp-based video sharing.
 Stores secure tokens for public access to specific video moments.
 """
 
-from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from datetime import UTC, datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from src.db.session import Base
@@ -25,7 +26,7 @@ class ShareableLink(Base):
     title = Column(String(255), nullable=True)  # Optional custom title
     is_active = Column(Boolean, default=True, nullable=False)
 
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)  # Optional expiration
 
     # Relationships

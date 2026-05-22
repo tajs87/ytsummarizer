@@ -3,13 +3,11 @@ Video API endpoints.
 Handles video submission, listing, and status checking.
 """
 import logging
-from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import RequestContext, get_db, get_request_context
-from src.core.errors import VideoNotFoundError
 from src.models.video import Video, VideoStatus
 from src.schemas.video import VideoListResponse, VideoResponse, VideoSubmitRequest
 from src.services.cache_service import cache_service
@@ -35,20 +33,20 @@ async def submit_video(
 ) -> VideoResponse:
     """
     Submit a video URL for transcription processing.
-    
+
     Workflow:
     1. Validate URL and detect platform
     2. Check cache for existing transcription
     3. Create Video record with PENDING status
     4. Dispatch Celery task chain: extract -> transcribe
     5. Return video with task_id for progress tracking
-    
+
     Rate limiting is enforced by middleware (10 videos/hour).
     """
     print(f"[DEBUG] Starting video submission: {request.url}", flush=True)
     logger.info(f"[SUBMIT] Starting video submission: {request.url}")
     url_str = str(request.url)
-    
+
     # Generate URL hash for deduplication
     owner_scope = (
         f"user:{context.user.id}" if context.user else f"guest:{context.guest_session.id}"
@@ -56,7 +54,7 @@ async def submit_video(
     url_hash = Video.generate_url_hash(url_str, user_scope=owner_scope)
     print(f"[DEBUG] Generated URL hash: {url_hash}", flush=True)
     logger.info(f"[SUBMIT] Generated URL hash: {url_hash}")
-    
+
     # Check if video already exists for this user
     existing_video = (
         db.query(Video)
@@ -69,7 +67,7 @@ async def submit_video(
         .first()
     )
     print(f"[DEBUG] Existing video check: {existing_video}", flush=True)
-    
+
     if existing_video:
         print(f"[DEBUG] Found existing video: id={existing_video.id}, status={existing_video.status}", flush=True)
         logger.info(f"[SUBMIT] Found existing video: id={existing_video.id}, status={existing_video.status}")
@@ -88,13 +86,13 @@ async def submit_video(
             completed_at=existing_video.completed_at,
             has_transcription=has_transcription,
         )
-    
-    logger.info(f"[SUBMIT] No existing video found, extracting metadata...")
+
+    logger.info("[SUBMIT] No existing video found, extracting metadata...")
     # Detect platform
     metadata = await video_extractor.extract_metadata(url_str)
     platform = metadata["platform"]
     logger.info(f"[SUBMIT] Metadata extracted: platform={platform}")
-    
+
     # Create new video record
     video = Video(
         user_id=context.user.id if context.user else None,
@@ -107,7 +105,7 @@ async def submit_video(
     db.add(video)
     db.commit()
     db.refresh(video)
-    
+
     # Dispatch Celery task chain
     # extract_video_task -> transcribe_audio_task
     task_chain = (
@@ -115,11 +113,11 @@ async def submit_video(
         | transcribe_audio_task.s(video.id)
     )
     result = task_chain.apply_async()
-    
+
     # Update video with task_id
     video.task_id = result.id
     db.commit()
-    
+
     return VideoResponse(
         id=video.id,
         url=video.url,
@@ -149,7 +147,7 @@ async def list_videos(
 ) -> VideoListResponse:
     """
     List current user's videos with pagination and filtering.
-    
+
     Returns videos ordered by creation date (newest first).
     """
     query = db.query(Video)
@@ -157,14 +155,14 @@ async def list_videos(
         query = query.filter(Video.user_id == context.user.id)
     else:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
-    
+
     # Apply status filter
     if status_filter:
         query = query.filter(Video.status == status_filter)
-    
+
     # Get total count
     total = query.count()
-    
+
     # Paginate
     offset = (page - 1) * page_size
     videos = (
@@ -173,7 +171,7 @@ async def list_videos(
         .limit(page_size)
         .all()
     )
-    
+
     # Convert to response models
     video_responses = []
     for video in videos:
@@ -193,7 +191,7 @@ async def list_videos(
                 has_transcription=has_transcription,
             )
         )
-    
+
     return VideoListResponse(
         videos=video_responses,
         total=total,
@@ -216,7 +214,7 @@ async def get_video(
 ) -> VideoResponse:
     """
     Get details for a specific video.
-    
+
     Only returns videos owned by the current user.
     """
     query = db.query(Video).filter(Video.id == video_id)
@@ -225,15 +223,15 @@ async def get_video(
     else:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
-    
+
     if not video:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Video {video_id} not found",
         )
-    
+
     has_transcription = video.transcription is not None
-    
+
     return VideoResponse(
         id=video.id,
         url=video.url,
@@ -261,7 +259,7 @@ async def delete_video(
 ) -> None:
     """
     Delete a video and its associated transcription.
-    
+
     Only allows deletion of videos owned by the current user.
     """
     query = db.query(Video).filter(Video.id == video_id)
@@ -270,16 +268,16 @@ async def delete_video(
     else:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
-    
+
     if not video:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Video {video_id} not found",
         )
-    
+
     # Invalidate cache
     await cache_service.invalidate_transcription(video.url_hash)
-    
+
     # Delete video (cascade deletes transcription)
     db.delete(video)
     db.commit()

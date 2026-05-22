@@ -28,7 +28,7 @@ class GuestSession(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     migrated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    videos: Mapped[list["Video"]] = relationship("Video", back_populates="guest_session")  # type: ignore[name-defined]
+    videos: Mapped[list[Video]] = relationship("Video", back_populates="guest_session")  # type: ignore[name-defined]
 
     # Raw token is attached only at runtime for cookie issuance in API responses.
     raw_token: ClassVar[str | None] = None
