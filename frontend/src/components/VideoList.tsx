@@ -12,6 +12,7 @@ export function VideoList() {
   const [statusFilter, setStatusFilter] = useState<VideoStatus | undefined>();
   const { data, isLoading, error } = useVideos(page, 20, statusFilter);
   const deleteVideo = useDeleteVideo();
+  const isGuestContext = data?.is_guest_context ?? false;
 
   const handleDelete = async (videoId: number, videoTitle: string | null) => {
     if (
@@ -71,10 +72,13 @@ export function VideoList() {
   }
 
   if (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to load videos. Please try again.';
+
     return (
       <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
         <p className="text-sm text-red-800 dark:text-red-200">
-          Failed to load videos. Please try again.
+          {errorMessage}
         </p>
       </div>
     );
@@ -84,14 +88,27 @@ export function VideoList() {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 dark:text-gray-400">
-          No videos found. Start by submitting a video URL!
+          {isGuestContext
+            ? 'No guest-session videos found. Submit a video to start processing in this session.'
+            : 'No videos found. Start by submitting a video URL!'}
         </p>
+        {isGuestContext && (
+          <p className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+            Guest history is temporary and clears when your browser session ends.
+          </p>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {isGuestContext && (
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-sm text-amber-800 dark:text-amber-200">
+          You are viewing guest session history. Sign in to migrate these items to your account.
+        </div>
+      )}
+
       {/* Filter */}
       <div className="flex items-center gap-4">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">

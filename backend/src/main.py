@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from src.api.middleware import RateLimitMiddleware, configure_cors
-from src.api.v1 import auth
+from src.api.v1 import auth, guest
 from src.core.errors import YTSumError
 
 # Create FastAPI application
@@ -26,6 +26,7 @@ app.add_middleware(RateLimitMiddleware)
 
 # Include API routers
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(guest.router, prefix="/api/v1")
 
 # Video and transcription routers
 from src.api.v1 import videos, transcriptions, ws, summaries, shares  # noqa: E402

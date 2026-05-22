@@ -152,11 +152,21 @@ def transcribe_audio_task(
 def _cache_transcription_sync(cache, url_hash: str, data: dict) -> None:
     """Synchronous cache operation for Celery."""
     import json
+    import redis
+
+    from src.core.config import get_settings
     from src.services.cache_service import CACHE_TTL_SECONDS
-    
+
+    settings = get_settings()
+
+    sync_redis = redis.from_url(
+        str(settings.redis_url),
+        encoding="utf-8",
+        decode_responses=True,
+    )
+
     key = f"transcription:{url_hash}"
-    # Use sync Redis in Celery context
-    cache.client._redis.set(
+    sync_redis.set(
         key,
         json.dumps(data),
         ex=CACHE_TTL_SECONDS,

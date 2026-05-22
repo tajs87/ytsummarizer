@@ -6,6 +6,8 @@ import { Home } from './pages/Home';
 import { VideoDetail } from './pages/VideoDetail';
 import { History } from './pages/History';
 import { SharePage } from './pages/Share';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import { useGuestSession } from './hooks/useGuestSession';
 
 // Create QueryClient instance
 const queryClient = new QueryClient({
@@ -20,18 +22,27 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/video/:id" element={<VideoDetail />} />
-            <Route path="/share/:token" element={<SharePage />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
+      <AuthProvider>
+        <GuestSessionBootstrap />
+        <BrowserRouter>
+          <div className="min-h-screen bg-background">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/video/:id" element={<VideoDetail />} />
+              <Route path="/share/:token" element={<SharePage />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function GuestSessionBootstrap() {
+  const { isAuthenticated } = useAuth();
+  useGuestSession(isAuthenticated);
+  return null;
 }
 
 export default App;

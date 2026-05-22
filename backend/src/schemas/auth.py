@@ -28,6 +28,7 @@ class TokenResponse(BaseModel):
 
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field(default="bearer", description="Token type")
+    migrated_items: int = Field(0, description="Number of guest items migrated on login")
 
 
 class UserResponse(BaseModel):

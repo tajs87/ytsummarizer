@@ -18,14 +18,14 @@ from src.tasks.app import celery_app
 @celery_app.task(name="tasks.extract_highlights", bind=True, max_retries=2)
 def extract_highlights_task(
     self,
-    summary_id: int,
+    summary_ref: dict | int,
     max_highlights: int = 5,
 ) -> dict:
     """
     Extract highlights for a summary.
 
     Args:
-        summary_id: ID of the summary
+        summary_ref: Summary ID or payload from generate_summary_task
         max_highlights: Maximum number of highlights
 
     Returns:
@@ -35,6 +35,15 @@ def extract_highlights_task(
         NotFoundError: If summary or transcription not found
     """
     db: Session = SessionLocal()
+
+    if isinstance(summary_ref, dict):
+        summary_id = int(summary_ref.get("summary_id", 0))
+    else:
+        summary_id = int(summary_ref)
+
+    if summary_id <= 0:
+        db.close()
+        raise SummaryNotFoundError(summary_id)
 
     try:
         # Get summary
@@ -94,7 +103,7 @@ def extract_highlights_task(
             "highlights_created": created_count,
         }
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
 

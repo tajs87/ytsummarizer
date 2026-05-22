@@ -4,6 +4,7 @@
  */
 import { useProgressWebSocket } from '@/hooks/useProgressWebSocket';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 interface ProgressTrackerProps {
   taskId: string | null;
@@ -12,6 +13,17 @@ interface ProgressTrackerProps {
 
 export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const handleViewClick = () => {
+    if (!videoId) return;
+
+    try {
+      navigate(`/video/${videoId}`);
+    } catch {
+      window.location.href = `/video/${videoId}`;
+    }
+  };
 
   const { progress, isConnected } = useProgressWebSocket({
     taskId,
@@ -147,9 +159,17 @@ export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
 
       {status === 'completed' && (
         <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-          <p className="text-sm text-green-800 dark:text-green-200">
+          <p className="text-sm text-green-800 dark:text-green-200 mb-3">
             Transcription complete! You can now view the results.
           </p>
+          {videoId && (
+            <button
+              onClick={handleViewClick}
+              className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              View Transcription
+            </button>
+          )}
         </div>
       )}
     </div>

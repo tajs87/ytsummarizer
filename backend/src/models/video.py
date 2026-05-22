@@ -6,7 +6,7 @@ import hashlib
 from datetime import datetime
 from enum import Enum as PyEnum
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -44,17 +44,19 @@ class Video(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     
-    # User relationship
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=False, index=True
+    # Ownership relationship
+    user_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True, index=True
     )
-    user: Mapped["User"] = relationship("User", back_populates="videos")  # type: ignore[name-defined]
+    owner_guest_session_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("guest_sessions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    user: Mapped["User | None"] = relationship("User", back_populates="videos")  # type: ignore[name-defined]
+    guest_session: Mapped["GuestSession | None"] = relationship("GuestSession", back_populates="videos")  # type: ignore[name-defined]
     
     # Video metadata
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
-    url_hash: Mapped[str] = mapped_column(
-        String(64), unique=True, index=True, nullable=False
-    )
+    url_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
     platform: Mapped[VideoPlatform] = mapped_column(
         Enum(VideoPlatform), nullable=False
     )
@@ -91,13 +93,14 @@ class Video(Base):
     )
 
     @staticmethod
-    def generate_url_hash(url: str) -> str:
+    def generate_url_hash(url: str, user_scope: str | None = None) -> str:
         """
         Generate a unique hash for a video URL.
         Used for deduplication and caching.
         
         Args:
             url: Video URL to hash
+            user_scope: Optional user namespace to avoid cross-user collisions
         
         Returns:
             SHA256 hash of the normalized URL
@@ -110,6 +113,9 @@ class Video(Base):
         if "#" in normalized:
             normalized = normalized.split("#")[0]
         
+        if user_scope:
+            normalized = f"{user_scope}:{normalized}"
+
         return hashlib.sha256(normalized.encode()).hexdigest()
 
     def __repr__(self) -> str:
@@ -117,6 +123,7 @@ class Video(Base):
 
 
 # Add videos relationship to User model
+from src.models.guest_session import GuestSession  # noqa: E402
 from src.models.user import User  # noqa: E402
 
 User.videos = relationship("Video", back_populates="user", cascade="all, delete-orphan")  # type: ignore

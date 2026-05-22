@@ -2,15 +2,20 @@
  * API service hooks for summary operations.
  */
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './api';
 import { Summary, SummaryListResponse, SummaryRequest } from '../types/summary';
 
 export function useGenerateSummary(videoId: number) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (data: SummaryRequest): Promise<Summary> => {
       const response = await apiClient.post<Summary>(`/api/v1/videos/${videoId}/summaries`, data);
       return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['summaries', videoId] });
     },
   });
 }

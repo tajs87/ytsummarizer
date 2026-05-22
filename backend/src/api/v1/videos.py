@@ -8,9 +8,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from src.api.deps import get_current_active_user, get_db
+from src.api.deps import RequestContext, get_db, get_request_context
 from src.core.errors import VideoNotFoundError
-from src.models.user import User
 from src.models.video import Video, VideoStatus
 from src.schemas.video import VideoListResponse, VideoResponse, VideoSubmitRequest
 from src.services.cache_service import cache_service
@@ -32,7 +31,7 @@ router = APIRouter(prefix="/videos", tags=["videos"])
 async def submit_video(
     request: VideoSubmitRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> VideoResponse:
     """
     Submit a video URL for transcription processing.
@@ -51,14 +50,22 @@ async def submit_video(
     url_str = str(request.url)
     
     # Generate URL hash for deduplication
-    url_hash = Video.generate_url_hash(url_str)
+    owner_scope = (
+        f"user:{context.user.id}" if context.user else f"guest:{context.guest_session.id}"
+    )
+    url_hash = Video.generate_url_hash(url_str, user_scope=owner_scope)
     print(f"[DEBUG] Generated URL hash: {url_hash}", flush=True)
     logger.info(f"[SUBMIT] Generated URL hash: {url_hash}")
     
     # Check if video already exists for this user
     existing_video = (
         db.query(Video)
-        .filter(Video.url_hash == url_hash, Video.user_id == current_user.id)
+        .filter(Video.url_hash == url_hash)
+        .filter(Video.user_id == (context.user.id if context.user else None))
+        .filter(
+            Video.owner_guest_session_id
+            == (context.guest_session.id if context.guest_session else None)
+        )
         .first()
     )
     print(f"[DEBUG] Existing video check: {existing_video}", flush=True)
@@ -90,7 +97,8 @@ async def submit_video(
     
     # Create new video record
     video = Video(
-        user_id=current_user.id,
+        user_id=context.user.id if context.user else None,
+        owner_guest_session_id=context.guest_session.id if context.guest_session else None,
         url=url_str,
         url_hash=url_hash,
         platform=platform,
@@ -137,14 +145,18 @@ async def list_videos(
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     status_filter: VideoStatus | None = Query(None, description="Filter by status"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> VideoListResponse:
     """
     List current user's videos with pagination and filtering.
     
     Returns videos ordered by creation date (newest first).
     """
-    query = db.query(Video).filter(Video.user_id == current_user.id)
+    query = db.query(Video)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     
     # Apply status filter
     if status_filter:
@@ -187,6 +199,8 @@ async def list_videos(
         total=total,
         page=page,
         page_size=page_size,
+        is_guest_context=context.is_guest,
+        history_scope="session" if context.is_guest else "account",
     )
 
 
@@ -198,18 +212,19 @@ async def list_videos(
 async def get_video(
     video_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> VideoResponse:
     """
     Get details for a specific video.
     
     Only returns videos owned by the current user.
     """
-    video = (
-        db.query(Video)
-        .filter(Video.id == video_id, Video.user_id == current_user.id)
-        .first()
-    )
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
     
     if not video:
         raise HTTPException(
@@ -242,18 +257,19 @@ async def get_video(
 async def delete_video(
     video_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> None:
     """
     Delete a video and its associated transcription.
     
     Only allows deletion of videos owned by the current user.
     """
-    video = (
-        db.query(Video)
-        .filter(Video.id == video_id, Video.user_id == current_user.id)
-        .first()
-    )
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
     
     if not video:
         raise HTTPException(

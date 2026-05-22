@@ -6,9 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
-from src.api.deps import get_current_active_user, get_db
+from src.api.deps import RequestContext, get_db, get_request_context
 from src.models.transcription import Transcription
-from src.models.user import User
 from src.models.video import Video
 from src.schemas.transcription import (
     TranscriptionResponse,
@@ -29,7 +28,7 @@ router = APIRouter(prefix="/videos", tags=["transcriptions"])
 async def get_transcription(
     video_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> TranscriptionResponse:
     """
     Retrieve transcription for a video.
@@ -38,11 +37,12 @@ async def get_transcription(
     Only accessible by video owner.
     """
     # Verify video ownership
-    video = (
-        db.query(Video)
-        .filter(Video.id == video_id, Video.user_id == current_user.id)
-        .first()
-    )
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
     
     if not video:
         raise HTTPException(
@@ -89,7 +89,7 @@ async def search_transcription(
     video_id: int,
     request: TranscriptionSearchRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> TranscriptionSearchResponse:
     """
     Search for text within a video's transcription.
@@ -98,11 +98,12 @@ async def search_transcription(
     Case-insensitive search.
     """
     # Verify video ownership
-    video = (
-        db.query(Video)
-        .filter(Video.id == video_id, Video.user_id == current_user.id)
-        .first()
-    )
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
     
     if not video:
         raise HTTPException(
@@ -154,7 +155,7 @@ async def search_transcription(
 async def export_transcription(
     video_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
 ) -> str:
     """
     Export transcription as plain text file.
@@ -166,11 +167,12 @@ async def export_transcription(
     ...
     """
     # Verify video ownership
-    video = (
-        db.query(Video)
-        .filter(Video.id == video_id, Video.user_id == current_user.id)
-        .first()
-    )
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
     
     if not video:
         raise HTTPException(

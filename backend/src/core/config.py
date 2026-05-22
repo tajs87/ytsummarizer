@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     secret_key: str = Field(..., min_length=32)
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
+    guest_session_cookie_name: str = "ytsum_guest_session"
+    guest_session_max_age_seconds: int = 86400
+    guest_session_secure_cookie: bool = False
+    guest_session_same_site: Literal["lax", "strict", "none"] = "lax"
     
     # Application
     debug: bool = False

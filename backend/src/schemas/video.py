@@ -45,3 +45,5 @@ class VideoListResponse(BaseModel):
     total: int = Field(..., description="Total number of videos")
     page: int = Field(1, description="Current page number")
     page_size: int = Field(20, description="Items per page")
+    is_guest_context: bool = Field(False, description="Whether list is for a guest session")
+    history_scope: str = Field("account", description="History scope: account or session")

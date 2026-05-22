@@ -3,10 +3,11 @@ Authentication endpoints for user registration and login.
 """
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_current_user
+from src.core.config import get_settings
 from src.core.errors import InvalidCredentialsError
 from src.core.security import create_access_token, get_password_hash, verify_password
 from src.db.session import get_db
@@ -18,8 +19,11 @@ from src.schemas.auth import (
     UserResponse,
 )
 from src.schemas.errors import ErrorResponse
+from src.services.guest_migration_service import guest_migration_service
+from src.services.guest_session_service import guest_session_service
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+settings = get_settings()
 
 
 @router.post(
@@ -77,6 +81,7 @@ def register(
 )
 def login(
     credentials: UserLoginRequest,
+    request: Request,
     db: Annotated[Session, Depends(get_db)],
 ) -> TokenResponse:
     """
@@ -107,8 +112,23 @@ def login(
     
     # Create access token
     access_token = create_access_token(data={"sub": user.email})
-    
-    return TokenResponse(access_token=access_token, token_type="bearer")
+
+    migrated_items = 0
+    guest_token = request.cookies.get(settings.guest_session_cookie_name)
+    if guest_token:
+        guest_session = guest_session_service.get_active_session(db, guest_token)
+        if guest_session:
+            migrated_items = guest_migration_service.migrate_guest_items(
+                db=db,
+                guest_session=guest_session,
+                user_id=user.id,
+            )
+
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+        migrated_items=migrated_items,
+    )
 
 
 @router.get(

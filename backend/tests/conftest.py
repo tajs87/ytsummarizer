@@ -6,7 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from src.core.config import get_settings
 from src.db.session import Base
+from src.models.guest_session import GuestSession
 from src.models.user import User  # noqa: F401 - imported for table creation
 
 
@@ -92,3 +94,29 @@ def test_superuser(test_db: Session) -> User:
     test_db.refresh(user)
     
     return user
+
+
+@pytest.fixture
+def guest_session_cookie_name() -> str:
+    """Return configured guest session cookie name for request tests."""
+    return get_settings().guest_session_cookie_name
+
+
+@pytest.fixture
+def guest_session(test_db: Session) -> GuestSession:
+    """Create an active guest session for guest-context tests."""
+    from src.services.guest_session_service import guest_session_service
+
+    token = guest_session_service.generate_token()
+    session = guest_session_service.create_guest_session(test_db, token)
+    test_db.refresh(session)
+    return session
+
+
+@pytest.fixture
+def guest_session_cookie(
+    guest_session_cookie_name: str,
+    guest_session: GuestSession,
+) -> dict[str, str]:
+    """Provide cookie mapping that can be passed to TestClient requests."""
+    return {guest_session_cookie_name: guest_session.raw_token}

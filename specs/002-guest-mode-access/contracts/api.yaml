@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: YTSum Guest Mode Contracts
+  version: 0.1.0
+  description: Contract additions/changes for guest session access and migration.
+paths:
+  /api/v1/guest/session:
+    post:
+      summary: Initialize or refresh guest session
+      description: Issues/refreshes anonymous guest session token in secure httpOnly cookie.
+      responses:
+        '200':
+          description: Guest session active
+          headers:
+            Set-Cookie:
+              description: Anonymous guest session token cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestSessionResponse'
+
+  /api/v1/videos:
+    post:
+      summary: Submit video (guest or authenticated)
+      description: Accepts authenticated bearer token or active guest session cookie.
+      responses:
+        '202':
+          description: Video accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoResponse'
+        '401':
+          description: No valid auth or guest session context
+    get:
+      summary: List history entries for current context
+      description: Returns authenticated user history OR current guest-session history.
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Context-scoped history list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoListResponse'
+        '401':
+          description: No valid auth or guest session context
+
+  /api/v1/auth/login:
+    post:
+      summary: Login and auto-migrate guest items
+      description: On successful login, migrates all current-session guest entries to authenticated user history if guest cookie is present.
+      responses:
+        '200':
+          description: Authenticated and migration completed (if applicable)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+
+  /api/v1/auth/register:
+    post:
+      summary: Register and auto-migrate guest items
+      description: On successful registration/login sequence, migrates all current-session guest entries to account history if guest cookie is present.
+      responses:
+        '201':
+          description: Registered (migration occurs during subsequent auth success)
+
+components:
+  schemas:
+    GuestSessionResponse:
+      type: object
+      required: [session_state]
+      properties:
+        session_state:
+          type: string
+          enum: [active]
+
+    VideoResponse:
+      type: object
+      required: [id, url, status, created_at]
+      properties:
+        id: { type: integer }
+        url: { type: string }
+        status: { type: string }
+        created_at: { type: string, format: date-time }
+
+    VideoListResponse:
+      type: object
+      required: [videos, total, page, page_size]
+      properties:
+        videos:
+          type: array
+          items:
+            $ref: '#/components/schemas/VideoResponse'
+        total: { type: integer }
+        page: { type: integer }
+        page_size: { type: integer }
+
+    AuthTokenResponse:
+      type: object
+      required: [access_token, token_type]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string }

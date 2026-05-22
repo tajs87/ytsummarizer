@@ -1,21 +1,40 @@
-"""
-FastAPI dependencies for authentication and database access.
-"""
+"""FastAPI dependencies for authentication, guest context, and database access."""
+from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from src.core.config import get_settings
 from src.core.security import decode_access_token
 from src.db.session import get_db
+from src.models.guest_session import GuestSession
 from src.models.user import User
+from src.services.guest_session_service import guest_session_service
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+settings = get_settings()
+
+
+@dataclass
+class RequestContext:
+    """Resolved ownership context for endpoints that allow guest and auth access."""
+
+    user: User | None = None
+    guest_session: GuestSession | None = None
+
+    @property
+    def is_authenticated(self) -> bool:
+        return self.user is not None
+
+    @property
+    def is_guest(self) -> bool:
+        return self.guest_session is not None and self.user is None
 
 
 async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
     """
@@ -42,6 +61,9 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
+    if credentials is None:
+        raise credentials_exception
+
     token = credentials.credentials
     payload = decode_access_token(token)
     
@@ -107,3 +129,31 @@ async def get_current_superuser(
             detail="Not enough permissions",
         )
     return current_user
+
+
+async def get_request_context(
+    request: Request,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+    db: Annotated[Session, Depends(get_db)],
+) -> RequestContext:
+    """Resolve authenticated user context, or fallback to active guest session."""
+    if credentials is not None:
+        payload = decode_access_token(credentials.credentials)
+        if payload and isinstance(payload.get("sub"), str):
+            email = payload["sub"]
+            user = db.query(User).filter(User.email == email).first()
+            if user and user.is_active:
+                return RequestContext(user=user)
+
+    guest_token = request.cookies.get(settings.guest_session_cookie_name)
+    if guest_token:
+        guest_session = guest_session_service.get_active_session(db, guest_token)
+        if guest_session:
+            guest_session_service.touch_session(db, guest_session)
+            return RequestContext(guest_session=guest_session)
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No valid auth or guest session context",
+        headers={"WWW-Authenticate": "Bearer"},
+    )

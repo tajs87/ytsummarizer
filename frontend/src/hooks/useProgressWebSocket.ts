@@ -1,7 +1,7 @@
 /**
  * WebSocket hook for real-time progress updates.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ProgressUpdate } from '@/types/api';
 
 interface UseProgressWebSocketOptions {
@@ -19,12 +19,22 @@ export function useProgressWebSocket({
 }: UseProgressWebSocketOptions) {
   const [progress, setProgress] = useState<ProgressUpdate | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const onProgressRef = useRef(onProgress);
+  const onCompleteRef = useRef(onComplete);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onProgressRef.current = onProgress;
+    onCompleteRef.current = onComplete;
+    onErrorRef.current = onError;
+  }, [onProgress, onComplete, onError]);
 
   useEffect(() => {
     if (!taskId) return;
 
     const wsUrl = import.meta.env['VITE_WS_URL'] || 'ws://localhost:8000';
     const ws = new WebSocket(`${wsUrl}/api/v1/ws/progress/${taskId}`);
+    let isIntentionalClose = false;
 
     ws.onopen = () => {
       setIsConnected(true);
@@ -53,15 +63,19 @@ export function useProgressWebSocket({
         setProgress(update);
 
         // Call progress callback
-        if (onProgress) {
-          onProgress(update);
+        if (onProgressRef.current) {
+          onProgressRef.current(update);
         }
 
         // Call complete callback if finished
         if (update.status === 'completed' || update.status === 'failed') {
-          if (onComplete) {
-            onComplete();
+          if (onCompleteRef.current) {
+            onCompleteRef.current();
           }
+
+          // Task is terminal; close to avoid reconnect churn.
+          isIntentionalClose = true;
+          ws.close();
         }
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
@@ -69,10 +83,14 @@ export function useProgressWebSocket({
     };
 
     ws.onerror = (event) => {
+      if (isIntentionalClose || ws.readyState === WebSocket.CLOSED) {
+        return;
+      }
+
       console.error('WebSocket error:', event);
       const error = new Error('WebSocket connection error');
-      if (onError) {
-        onError(error);
+      if (onErrorRef.current) {
+        onErrorRef.current(error);
       }
     };
 
@@ -87,12 +105,13 @@ export function useProgressWebSocket({
 
     // Cleanup on unmount
     return () => {
+      isIntentionalClose = true;
       if ((ws as any)._pingInterval) {
         clearInterval((ws as any)._pingInterval);
       }
       ws.close();
     };
-  }, [taskId, onProgress, onComplete, onError]);
+  }, [taskId]);
 
   return {
     progress,

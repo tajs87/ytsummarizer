@@ -35,6 +35,8 @@ export interface VideoListResponse {
   total: number;
   page: number;
   page_size: number;
+  is_guest_context?: boolean;
+  history_scope?: 'account' | 'session';
 }
 
 export interface TranscriptionSegment {
@@ -80,6 +82,7 @@ export interface ProgressUpdate {
 export interface AuthToken {
   access_token: string;
   token_type: string;
+  migrated_items?: number;
 }
 
 export interface User {

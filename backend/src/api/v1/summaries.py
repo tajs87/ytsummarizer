@@ -7,9 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from celery import chain
 
-from src.api.deps import get_current_active_user
+from src.api.deps import RequestContext, get_request_context
 from src.db.session import get_db
-from src.models.user import User
 from src.models.video import Video
 from src.models.summary import Summary
 from src.schemas.summary import (
@@ -27,7 +26,7 @@ router = APIRouter(prefix="/videos", tags=["summaries"])
 async def generate_summary(
     video_id: int,
     request: SummaryRequest,
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
     db: Session = Depends(get_db),
 ) -> SummaryResponse:
     """
@@ -38,10 +37,12 @@ async def generate_summary(
     2. Extract key highlights
     """
     # Verify video exists and belongs to user
-    video = db.query(Video).filter(
-        Video.id == video_id,
-        Video.user_id == current_user.id,
-    ).first()
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
 
     if not video:
         raise HTTPException(
@@ -52,6 +53,7 @@ async def generate_summary(
     # Trigger async summary generation pipeline
     task_chain = chain(
         generate_summary_task.s(video_id, request.summary_type.value),
+        extract_highlights_task.s(),
     )
     task_chain.apply_async()
 
@@ -70,15 +72,17 @@ async def generate_summary(
 @router.get("/{video_id}/summaries", response_model=SummaryListResponse)
 async def get_video_summaries(
     video_id: int,
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
     db: Session = Depends(get_db),
 ) -> SummaryListResponse:
     """Get all summaries for a video."""
     # Verify video ownership
-    video = db.query(Video).filter(
-        Video.id == video_id,
-        Video.user_id == current_user.id,
-    ).first()
+    query = db.query(Video).filter(Video.id == video_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    video = query.first()
 
     if not video:
         raise HTTPException(
@@ -86,7 +90,12 @@ async def get_video_summaries(
             detail="Video not found",
         )
 
-    summaries = db.query(Summary).filter(Summary.video_id == video_id).all()
+    summaries = (
+        db.query(Summary)
+        .filter(Summary.video_id == video_id)
+        .order_by(Summary.created_at.desc())
+        .all()
+    )
 
     return SummaryListResponse(
         summaries=summaries,
@@ -97,14 +106,16 @@ async def get_video_summaries(
 @router.get("/summaries/{summary_id}", response_model=SummaryResponse)
 async def get_summary(
     summary_id: int,
-    current_user: User = Depends(get_current_active_user),
+    context: RequestContext = Depends(get_request_context),
     db: Session = Depends(get_db),
 ) -> SummaryResponse:
     """Get a specific summary by ID."""
-    summary = db.query(Summary).join(Video).filter(
-        Summary.id == summary_id,
-        Video.user_id == current_user.id,
-    ).first()
+    query = db.query(Summary).join(Video).filter(Summary.id == summary_id)
+    if context.user:
+        query = query.filter(Video.user_id == context.user.id)
+    else:
+        query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    summary = query.first()
 
     if not summary:
         raise HTTPException(

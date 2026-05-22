@@ -1,10 +1,10 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read specs/001-video-transcription-summary/plan.md
+shell commands, and other important information, read specs/002-guest-mode-access/plan.md
 
-Current feature: Video Transcription & Summarization
-- Spec: specs/001-video-transcription-summary/spec.md
-- Data Model: specs/001-video-transcription-summary/data-model.md
-- API Contracts: specs/001-video-transcription-summary/contracts/
-- Quickstart: specs/001-video-transcription-summary/quickstart.md
+Current feature: Guest Mode Access
+- Spec: specs/002-guest-mode-access/spec.md
+- Data Model: specs/002-guest-mode-access/data-model.md
+- API Contracts: specs/002-guest-mode-access/contracts/
+- Quickstart: specs/002-guest-mode-access/quickstart.md
 <!-- SPECKIT END -->

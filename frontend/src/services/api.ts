@@ -16,6 +16,40 @@ export type ApiError = {
   details?: Record<string, unknown>;
 };
 
+function toErrorMessage(payload: unknown, fallback: string): string {
+  if (!payload || typeof payload !== 'object') {
+    return fallback;
+  }
+
+  const errorPayload = payload as {
+    detail?: unknown;
+    message?: unknown;
+    error_code?: unknown;
+  };
+
+  if (typeof errorPayload.message === 'string' && errorPayload.message.trim()) {
+    return errorPayload.message;
+  }
+
+  if (typeof errorPayload.detail === 'string' && errorPayload.detail.trim()) {
+    return errorPayload.detail;
+  }
+
+  if (
+    errorPayload.detail &&
+    typeof errorPayload.detail === 'object' &&
+    'message' in errorPayload.detail &&
+    typeof (errorPayload.detail as { message?: unknown }).message === 'string'
+  ) {
+    const nestedMessage = (errorPayload.detail as { message: string }).message.trim();
+    if (nestedMessage) {
+      return nestedMessage;
+    }
+  }
+
+  return fallback;
+}
+
 class ApiClient {
   private baseURL: string;
   private token: string | null = null;
@@ -57,11 +91,19 @@ class ApiClient {
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {
-      const error: ApiError = await response.json();
-      throw error;
+      let payload: unknown = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      const message = toErrorMessage(payload, `Request failed (${response.status})`);
+      throw new Error(message);
     }
 
     const data = await response.json();

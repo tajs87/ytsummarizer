@@ -2,13 +2,16 @@
 WebSocket endpoint for real-time progress updates.
 Provides live transcription progress to frontend clients.
 """
+import asyncio
 from typing import Any
 
+from celery.result import AsyncResult
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db
 from src.services.websocket_service import websocket_manager
+from src.tasks.app import celery_app
 
 router = APIRouter(prefix="/ws", tags=["websocket"])
 
@@ -39,15 +42,62 @@ async def progress_websocket(
         }
     """
     await websocket_manager.connect(websocket, task_id)
-    
+
+    last_payload: dict[str, Any] | None = None
+
     try:
-        # Keep connection alive and receive client messages
+        # Poll Celery state and stream it to connected clients.
         while True:
-            data = await websocket.receive_text()
-            
-            # Client can send "ping" to keep connection alive
-            if data == "ping":
-                await websocket.send_json({"type": "pong"})
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=1.0)
+                if data == "ping":
+                    await websocket.send_json({"type": "pong"})
+            except TimeoutError:
+                pass
+
+            result = AsyncResult(task_id, app=celery_app)
+            meta = result.info if isinstance(result.info, dict) else {}
+
+            payload: dict[str, Any]
+            if result.state == "PROGRESS":
+                payload = {
+                    "progress": int(meta.get("progress", 0)),
+                    "message": str(meta.get("message", "Processing...")),
+                    "status": "processing",
+                }
+            elif result.state == "SUCCESS":
+                payload = {
+                    "progress": 100,
+                    "message": "Processing complete",
+                    "status": "completed",
+                }
+            elif result.state == "FAILURE":
+                payload = {
+                    "progress": int(meta.get("progress", 0)) if meta else 0,
+                    "message": str(meta.get("error", "Processing failed")) if meta else "Processing failed",
+                    "status": "failed",
+                }
+            elif result.state == "STARTED":
+                payload = {
+                    "progress": 5,
+                    "message": "Task started",
+                    "status": "processing",
+                }
+            else:
+                payload = {
+                    "progress": 0,
+                    "message": "Initializing...",
+                    "status": "processing",
+                }
+
+            if payload != last_payload:
+                await websocket.send_json(payload)
+                last_payload = payload
+
+            if payload["status"] in {"completed", "failed"}:
+                break
     
     except WebSocketDisconnect:
+        pass
+    finally:
         websocket_manager.disconnect(websocket, task_id)

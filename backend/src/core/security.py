@@ -12,8 +12,10 @@ from src.core.config import get_settings
 
 settings = get_settings()
 
-# Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing context.
+# `bcrypt` has runtime compatibility issues with some recent bcrypt wheels in this stack,
+# so use a stable passlib-native scheme for local/dev reliability.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

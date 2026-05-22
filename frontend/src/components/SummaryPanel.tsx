@@ -15,19 +15,28 @@ interface SummaryPanelProps {
 
 export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
   const [selectedType, setSelectedType] = useState<SummaryType>('brief');
+  const [isWaitingForSummary, setIsWaitingForSummary] = useState(false);
   const { summaries, isLoading, isGenerating, generateSummary, generateError } = useSummary(videoId);
 
-  const selectedSummary = summaries.find((summary) => summary.summary_type === selectedType)
-    ?? summaries[0];
+  const selectedSummary = [...summaries]
+    .filter((summary) => summary.summary_type === selectedType)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
+    ?? [...summaries]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
 
   const handleGenerate = async () => {
+    setIsWaitingForSummary(true);
     try {
       await generateSummary(selectedType);
     } catch (error) {
       // Keep local handling minimal; query state renders the error.
       console.error('Summary generation failed', error);
+    } finally {
+      setIsWaitingForSummary(false);
     }
   };
+
+  const isBusy = isGenerating || isWaitingForSummary;
 
   return (
     <section className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
@@ -36,18 +45,24 @@ export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
         <button
           type="button"
           onClick={handleGenerate}
-          disabled={isGenerating}
+          disabled={isBusy}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isGenerating ? 'Generating...' : 'Generate Summary'}
+          {isBusy ? 'Generating...' : 'Generate Summary'}
         </button>
       </div>
 
       <SummaryTypeSelector
         value={selectedType}
         onChange={setSelectedType}
-        disabled={isGenerating}
+        disabled={isBusy}
       />
+
+      {isBusy && (
+        <p className="text-sm text-blue-600 dark:text-blue-400">
+          Generating summary, this may take a few seconds...
+        </p>
+      )}
 
       {generateError && (
         <p className="text-sm text-red-600 dark:text-red-400">Failed to generate summary. Please try again.</p>
