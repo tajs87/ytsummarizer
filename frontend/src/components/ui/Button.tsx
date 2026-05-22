@@ -34,8 +34,7 @@ const buttonVariants = cva(
   }
 );
 
-export type ButtonProps = Record<string, never> &
-  ButtonHTMLAttributes<HTMLButtonElement> &
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
