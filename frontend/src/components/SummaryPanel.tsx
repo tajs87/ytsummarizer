@@ -8,10 +8,10 @@ import { SummaryType } from '@/types/summary';
 import { SummaryTypeSelector } from '@/components/SummaryTypeSelector';
 import { HighlightsList } from '@/components/HighlightsList';
 
-interface SummaryPanelProps {
+type SummaryPanelProps = {
   videoId: number;
   onTimestampClick?: (timeInSeconds: number) => void;
-}
+};
 
 export function SummaryPanel({ videoId, onTimestampClick }: SummaryPanelProps) {
   const [selectedType, setSelectedType] = useState<SummaryType>('brief');

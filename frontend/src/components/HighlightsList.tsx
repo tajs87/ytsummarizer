@@ -7,11 +7,11 @@ import { formatTimestamp } from '@/utils/formatTimestamp';
 import { ShareDialog } from '@/components/ShareDialog';
 import { TimestampLink } from '@/components/TimestampLink';
 
-interface HighlightsListProps {
+type HighlightsListProps = {
   videoId: number;
   highlights: Highlight[];
   onTimestampClick?: (timeInSeconds: number) => void;
-}
+};
 
 export function HighlightsList({
   videoId,

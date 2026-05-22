@@ -4,13 +4,13 @@
 
 import { SummaryType } from '@/types/summary';
 
-interface SummaryTypeSelectorProps {
+type SummaryTypeSelectorProps = {
   value: SummaryType;
   onChange: (value: SummaryType) => void;
   disabled?: boolean;
-}
+};
 
-const summaryTypeOptions: Array<{ value: SummaryType; label: string; description: string }> = [
+const summaryTypeOptions: { value: SummaryType; label: string; description: string }[] = [
   {
     value: 'brief',
     label: 'Brief',
@@ -44,7 +44,7 @@ export function SummaryTypeSelector({
             key={option.value}
             type="button"
             disabled={disabled}
-            onClick={() => onChange(option.value)}
+              onClick={() => { onChange(option.value); }}
             className={`text-left p-3 border rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               value === option.value
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-100'

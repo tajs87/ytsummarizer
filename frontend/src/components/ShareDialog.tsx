@@ -10,12 +10,12 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { CopyButton } from './ui/CopyButton';
 
-interface ShareDialogProps {
+type ShareDialogProps = {
   videoId: number;
   startTime: number;
   endTime?: number;
   trigger?: React.ReactNode;
-}
+};
 
 export function ShareDialog({
   videoId,
@@ -56,7 +56,7 @@ export function ShareDialog({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        {trigger || (
+        {trigger ?? (
           <Button variant="outline" size="sm">
             <Share2 className="h-4 w-4 mr-1" />
             Share
@@ -81,7 +81,7 @@ export function ShareDialog({
               <Input
                 label="Title (Optional)"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => { setTitle(e.target.value); }}
                 placeholder="e.g., Key insight at 2:30"
               />
 
@@ -90,8 +90,8 @@ export function ShareDialog({
                 type="number"
                 min="1"
                 max="720"
-                value={expiresInHours || ''}
-                onChange={(e) => setExpiresInHours(e.target.value ? parseInt(e.target.value) : undefined)}
+                  value={expiresInHours ?? ''}
+                  onChange={(e) => { setExpiresInHours(e.target.value ? parseInt(e.target.value) : undefined); }}
                 placeholder="Leave empty for no expiration"
               />
 

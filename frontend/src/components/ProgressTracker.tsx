@@ -6,10 +6,10 @@ import { useProgressWebSocket } from '@/hooks/useProgressWebSocket';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-interface ProgressTrackerProps {
+type ProgressTrackerProps = {
   taskId: string | null;
   videoId?: number;
-}
+};
 
 export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
   const queryClient = useQueryClient();
@@ -30,10 +30,10 @@ export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
     onComplete: () => {
       // Invalidate video and transcription queries when complete
       if (videoId) {
-        queryClient.invalidateQueries({ queryKey: ['videos', videoId] });
-        queryClient.invalidateQueries({ queryKey: ['transcriptions', videoId] });
+        void queryClient.invalidateQueries({ queryKey: ['videos', videoId] });
+        void queryClient.invalidateQueries({ queryKey: ['transcriptions', videoId] });
       }
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      void queryClient.invalidateQueries({ queryKey: ['videos'] });
     },
   });
 
@@ -41,9 +41,9 @@ export function ProgressTracker({ taskId, videoId }: ProgressTrackerProps) {
     return null;
   }
 
-  const progressPercent = progress?.progress || 0;
-  const message = progress?.message || 'Initializing...';
-  const status = progress?.status || 'processing';
+  const progressPercent = progress?.progress ?? 0;
+  const message = progress?.message ?? 'Initializing...';
+  const status = progress?.status ?? 'processing';
 
   const getStatusColor = () => {
     switch (status) {
