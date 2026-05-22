@@ -1,4 +1,4 @@
-"""  
+"""
 Pydantic schemas for shareable link API requests and responses.
 """
 

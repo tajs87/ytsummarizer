@@ -1,4 +1,4 @@
-"""  
+"""
 Pydantic schemas for summary API requests and responses.
 """
 

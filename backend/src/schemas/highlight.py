@@ -1,4 +1,4 @@
-"""  
+"""
 Pydantic schemas for highlight API requests and responses.
 """
 
