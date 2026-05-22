@@ -1,6 +1,7 @@
 """
 Base task class with progress tracking for WebSocket updates.
 """
+
 from typing import Any
 
 from celery import Task

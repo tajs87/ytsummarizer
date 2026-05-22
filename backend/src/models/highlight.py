@@ -17,7 +17,9 @@ class Highlight(Base):
     __tablename__ = "highlights"
 
     id = Column(Integer, primary_key=True, index=True)
-    summary_id = Column(Integer, ForeignKey("summaries.id", ondelete="CASCADE"), nullable=False, index=True)
+    summary_id = Column(
+        Integer, ForeignKey("summaries.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     text = Column(Text, nullable=False)
     start_time = Column(Float, nullable=False)  # Timestamp in seconds
     end_time = Column(Float, nullable=False)  # Timestamp in seconds

@@ -2,6 +2,7 @@
 Redis cache service for transcription results.
 Implements 7-day TTL per plan.md caching strategy.
 """
+
 import json
 from typing import Any
 
@@ -55,9 +56,7 @@ class CacheService:
             return json.loads(cached_data)
         return None
 
-    async def set_transcription(
-        self, url_hash: str, transcription_data: dict[str, Any]
-    ) -> None:
+    async def set_transcription(self, url_hash: str, transcription_data: dict[str, Any]) -> None:
         """
         Cache transcription data with 7-day TTL.
 
@@ -106,9 +105,7 @@ class CacheService:
             return json.loads(cached_data)
         return None
 
-    async def set_video_metadata(
-        self, url_hash: str, metadata: dict[str, Any]
-    ) -> None:
+    async def set_video_metadata(self, url_hash: str, metadata: dict[str, Any]) -> None:
         """
         Cache video metadata (title, duration, etc.).
 

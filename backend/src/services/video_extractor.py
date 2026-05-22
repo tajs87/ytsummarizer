@@ -2,6 +2,7 @@
 Video extraction service using yt-dlp.
 Handles downloading audio and extracting metadata from video URLs.
 """
+
 import asyncio
 import tempfile
 from pathlib import Path
@@ -52,9 +53,7 @@ class VideoExtractor:
         """
         try:
             loop = asyncio.get_event_loop()
-            metadata = await loop.run_in_executor(
-                None, self._extract_metadata_sync, url
-            )
+            metadata = await loop.run_in_executor(None, self._extract_metadata_sync, url)
             return metadata
         except Exception as e:
             raise VideoExtractionError(

@@ -121,6 +121,7 @@ Focus on actionable insights, key decisions, or main points.
                 return []
 
             import json
+
             content = response.choices[0].message.content
             parsed = json.loads(content)
             highlights = parsed.get("highlights", [])

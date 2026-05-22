@@ -34,7 +34,9 @@ class FakeDBSession:
 
 
 def test_transcription_retrieval_and_search_flow():
-    user = User(id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False)
+    user = User(
+        id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False
+    )
     video = Video(
         id=1,
         user_id=1,

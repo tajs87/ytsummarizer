@@ -2,6 +2,7 @@
 Video model representing a video resource for transcription.
 Tracks video metadata, processing status, and relationships.
 """
+
 import hashlib
 from datetime import datetime
 from enum import StrEnum
@@ -52,14 +53,14 @@ class Video(Base):
         Integer, ForeignKey("guest_sessions.id", ondelete="SET NULL"), nullable=True, index=True
     )
     user: Mapped["User | None"] = relationship("User", back_populates="videos")  # type: ignore[name-defined]
-    guest_session: Mapped["GuestSession | None"] = relationship("GuestSession", back_populates="videos")  # type: ignore[name-defined]
+    guest_session: Mapped["GuestSession | None"] = relationship(
+        "GuestSession", back_populates="videos"
+    )  # type: ignore[name-defined]
 
     # Video metadata
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
     url_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
-    platform: Mapped[VideoPlatform] = mapped_column(
-        Enum(VideoPlatform), nullable=False
-    )
+    platform: Mapped[VideoPlatform] = mapped_column(Enum(VideoPlatform), nullable=False)
     title: Mapped[str | None] = mapped_column(String(500))
     duration_seconds: Mapped[float | None] = mapped_column(Float)
 

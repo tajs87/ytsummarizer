@@ -2,6 +2,7 @@
 Application configuration using pydantic-settings.
 Loads from environment variables with validation.
 """
+
 from functools import lru_cache
 from typing import Literal
 

@@ -1,6 +1,7 @@
 """
 FastAPI middleware for CORS and rate limiting.
 """
+
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
@@ -76,7 +77,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                                     db.commit()
 
                                 # Check if limit exceeded
-                                if user.videos_processed_current_hour >= settings.rate_limit_videos_per_hour:
+                                if (
+                                    user.videos_processed_current_hour
+                                    >= settings.rate_limit_videos_per_hour
+                                ):
                                     return JSONResponse(
                                         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                                         content={

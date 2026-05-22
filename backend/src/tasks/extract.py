@@ -2,6 +2,7 @@
 Celery task for video extraction.
 Downloads audio from video URL and prepares for transcription.
 """
+
 import tempfile
 from pathlib import Path
 
@@ -72,9 +73,7 @@ def extract_video_task(self: Task, video_id: int) -> dict[str, str]:
 
         # Download audio to temp location
         temp_dir = Path(tempfile.mkdtemp())
-        audio_path = video_extractor._download_audio_sync(
-            video.url, temp_dir / f"video_{video_id}"
-        )
+        audio_path = video_extractor._download_audio_sync(video.url, temp_dir / f"video_{video_id}")
 
         self.update_progress(80, "Audio extraction complete")
 

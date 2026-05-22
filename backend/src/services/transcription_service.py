@@ -2,6 +2,7 @@
 Transcription service using OpenAI Whisper API.
 Handles audio transcription with timestamps and speaker detection.
 """
+
 from pathlib import Path
 from typing import Any
 
@@ -27,9 +28,7 @@ class TranscriptionService:
         Args:
             api_key: OpenAI API key (uses settings if None)
         """
-        self.client = AsyncOpenAI(
-            api_key=api_key or settings.openai_api_key
-        )
+        self.client = AsyncOpenAI(api_key=api_key or settings.openai_api_key)
 
     async def transcribe_audio(
         self, audio_path: Path, language: str | None = None
@@ -104,12 +103,14 @@ class TranscriptionService:
         processed = []
 
         for idx, segment in enumerate(raw_segments):
-            processed.append({
-                "id": idx,
-                "start": segment.start,
-                "end": segment.end,
-                "text": segment.text.strip(),
-            })
+            processed.append(
+                {
+                    "id": idx,
+                    "start": segment.start,
+                    "end": segment.end,
+                    "text": segment.text.strip(),
+                }
+            )
 
         return processed
 

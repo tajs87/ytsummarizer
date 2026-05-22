@@ -23,9 +23,7 @@ async def test_transcribe_audio_success(tmp_path):
         return fake_response
 
     service.client = SimpleNamespace(
-        audio=SimpleNamespace(
-            transcriptions=SimpleNamespace(create=fake_create)
-        )
+        audio=SimpleNamespace(transcriptions=SimpleNamespace(create=fake_create))
     )
 
     result = await service.transcribe_audio(audio_file)

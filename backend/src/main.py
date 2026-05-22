@@ -2,6 +2,7 @@
 Main FastAPI application entry point.
 Configures middleware, routes, and error handlers.
 """
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 

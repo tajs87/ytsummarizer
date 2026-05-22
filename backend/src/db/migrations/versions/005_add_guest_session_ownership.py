@@ -5,6 +5,7 @@ Revises: 004
 Create Date: 2026-05-22
 
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -24,14 +25,26 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("token_hash", sa.String(length=64), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("true")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("last_seen_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "last_seen_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("migrated_at", sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_guest_sessions_id"), "guest_sessions", ["id"], unique=False)
-    op.create_index(op.f("ix_guest_sessions_token_hash"), "guest_sessions", ["token_hash"], unique=True)
+    op.create_index(
+        op.f("ix_guest_sessions_token_hash"), "guest_sessions", ["token_hash"], unique=True
+    )
 
     op.add_column("videos", sa.Column("owner_guest_session_id", sa.Integer(), nullable=True))
     op.create_foreign_key(
@@ -42,7 +55,9 @@ def upgrade() -> None:
         ["id"],
         ondelete="SET NULL",
     )
-    op.create_index(op.f("ix_videos_owner_guest_session_id"), "videos", ["owner_guest_session_id"], unique=False)
+    op.create_index(
+        op.f("ix_videos_owner_guest_session_id"), "videos", ["owner_guest_session_id"], unique=False
+    )
 
     op.alter_column("videos", "user_id", existing_type=sa.Integer(), nullable=True)
 
@@ -58,7 +73,9 @@ def downgrade() -> None:
     op.alter_column("videos", "user_id", existing_type=sa.Integer(), nullable=False)
 
     op.drop_index(op.f("ix_videos_owner_guest_session_id"), table_name="videos")
-    op.drop_constraint("fk_videos_owner_guest_session_id_guest_sessions", "videos", type_="foreignkey")
+    op.drop_constraint(
+        "fk_videos_owner_guest_session_id_guest_sessions", "videos", type_="foreignkey"
+    )
     op.drop_column("videos", "owner_guest_session_id")
 
     op.drop_index(op.f("ix_guest_sessions_token_hash"), table_name="guest_sessions")

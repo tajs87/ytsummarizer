@@ -2,6 +2,7 @@
 Transcription model for storing video transcription data.
 Uses JSONB for flexible segment storage with timestamps.
 """
+
 from datetime import datetime
 from typing import Any
 
@@ -42,14 +43,10 @@ class Transcription(Base):
 
     # Transcription content
     full_text: Mapped[str] = mapped_column(Text, nullable=False)
-    segments: Mapped[list[dict[str, Any]]] = mapped_column(
-        JSONB, nullable=False, default=list
-    )
+    segments: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False, default=list)
 
     # Metadata
-    language: Mapped[str] = mapped_column(
-        String(10), default="en", nullable=False
-    )
+    language: Mapped[str] = mapped_column(String(10), default="en", nullable=False)
     word_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     # Processing metrics

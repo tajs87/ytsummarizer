@@ -1,4 +1,5 @@
 """Guest session model used for anonymous ownership and migration."""
+
 from __future__ import annotations
 
 from datetime import datetime

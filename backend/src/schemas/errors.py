@@ -2,6 +2,7 @@
 Pydantic schemas for error responses.
 Provides structured, consistent error format across all endpoints.
 """
+
 from typing import Any
 
 from pydantic import BaseModel, Field

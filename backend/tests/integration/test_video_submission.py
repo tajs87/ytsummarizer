@@ -64,7 +64,9 @@ class FakeTask:
 
 def test_video_submission_flow_creates_pending_video(monkeypatch):
     fake_db = FakeDBSession()
-    user = User(id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False)
+    user = User(
+        id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False
+    )
 
     async def fake_get_db():
         yield fake_db

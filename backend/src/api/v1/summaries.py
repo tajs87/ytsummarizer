@@ -22,7 +22,9 @@ from src.tasks.summarize import generate_summary_task
 router = APIRouter(prefix="/videos", tags=["summaries"])
 
 
-@router.post("/{video_id}/summaries", response_model=SummaryResponse, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/{video_id}/summaries", response_model=SummaryResponse, status_code=status.HTTP_202_ACCEPTED
+)
 async def generate_summary(
     video_id: int,
     request: SummaryRequest,

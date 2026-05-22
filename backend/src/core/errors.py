@@ -2,6 +2,7 @@
 Structured error handling and custom exception classes.
 Per constitution requirement: errors must be actionable with error codes.
 """
+
 from typing import Any
 
 

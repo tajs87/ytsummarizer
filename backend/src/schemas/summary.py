@@ -21,7 +21,9 @@ class SummaryType(StrEnum):
 class SummaryRequest(BaseModel):
     """Request schema for generating video summary."""
 
-    summary_type: SummaryType = Field(default=SummaryType.BRIEF, description="Type of summary to generate")
+    summary_type: SummaryType = Field(
+        default=SummaryType.BRIEF, description="Type of summary to generate"
+    )
 
 
 class SummaryBase(BaseModel):

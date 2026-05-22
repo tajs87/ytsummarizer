@@ -2,6 +2,7 @@
 Security utilities for authentication and authorization.
 Implements JWT token generation and password hashing.
 """
+
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -88,9 +89,7 @@ def decode_access_token(token: str) -> dict[str, Any] | None:
         ...     user_id = payload.get("sub")
     """
     try:
-        payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
-        )
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         return payload
     except JWTError:
         return None

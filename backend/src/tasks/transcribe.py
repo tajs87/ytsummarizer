@@ -2,6 +2,7 @@
 Celery task for audio transcription.
 Uses OpenAI Whisper to transcribe audio and store results.
 """
+
 import asyncio
 from datetime import datetime
 from pathlib import Path
@@ -20,9 +21,7 @@ from src.tasks.base import ProgressTask
 
 
 @celery_app.task(bind=True, base=ProgressTask, name="tasks.transcribe_audio")
-def transcribe_audio_task(
-    self: Task, extract_result: dict, video_id: int
-) -> dict[str, int]:
+def transcribe_audio_task(self: Task, extract_result: dict, video_id: int) -> dict[str, int]:
     """
     Transcribe audio file and save results to database.
 
@@ -80,9 +79,7 @@ def transcribe_audio_task(
 
         # Transcribe audio (run async function in sync context)
         start_time = datetime.now()
-        transcription_result = asyncio.run(
-            transcription_service.transcribe_audio(audio_file)
-        )
+        transcription_result = asyncio.run(transcription_service.transcribe_audio(audio_file))
         processing_time = (datetime.now() - start_time).total_seconds()
 
         self.update_progress(70, "Saving transcription...")

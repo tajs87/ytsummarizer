@@ -1,4 +1,5 @@
 """Guest session token and persistence service."""
+
 from __future__ import annotations
 
 import hashlib
@@ -88,7 +89,9 @@ class GuestSessionService:
                 return GuestSessionResult(session=existing, token=token, is_new=False)
 
         session = self.create_guest_session(db)
-        return GuestSessionResult(session=session, token=session.raw_token or self.generate_token(), is_new=True)
+        return GuestSessionResult(
+            session=session, token=session.raw_token or self.generate_token(), is_new=True
+        )
 
 
 # Shared service instance

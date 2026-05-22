@@ -1,6 +1,7 @@
 """
 Pydantic schemas for transcription endpoints.
 """
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -22,14 +23,10 @@ class TranscriptionResponse(BaseModel):
     id: int = Field(..., description="Transcription ID")
     video_id: int = Field(..., description="Associated video ID")
     full_text: str = Field(..., description="Complete transcription text")
-    segments: list[TranscriptionSegment] = Field(
-        ..., description="Timed transcription segments"
-    )
+    segments: list[TranscriptionSegment] = Field(..., description="Timed transcription segments")
     language: str = Field(..., description="Detected language code")
     word_count: int = Field(..., description="Total word count")
-    processing_time_seconds: float | None = Field(
-        None, description="Processing time in seconds"
-    )
+    processing_time_seconds: float | None = Field(None, description="Processing time in seconds")
     created_at: datetime = Field(..., description="Creation timestamp")
 
     model_config = {"from_attributes": True}

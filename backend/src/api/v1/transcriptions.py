@@ -2,6 +2,7 @@
 Transcription API endpoints.
 Handles transcription retrieval, search, and export.
 """
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
@@ -51,11 +52,7 @@ async def get_transcription(
         )
 
     # Get transcription
-    transcription = (
-        db.query(Transcription)
-        .filter(Transcription.video_id == video_id)
-        .first()
-    )
+    transcription = db.query(Transcription).filter(Transcription.video_id == video_id).first()
 
     if not transcription:
         raise HTTPException(
@@ -64,9 +61,7 @@ async def get_transcription(
         )
 
     # Convert segments to response format
-    segments = [
-        TranscriptionSegment(**segment) for segment in transcription.segments
-    ]
+    segments = [TranscriptionSegment(**segment) for segment in transcription.segments]
 
     return TranscriptionResponse(
         id=transcription.id,
@@ -112,11 +107,7 @@ async def search_transcription(
         )
 
     # Get transcription
-    transcription = (
-        db.query(Transcription)
-        .filter(Transcription.video_id == video_id)
-        .first()
-    )
+    transcription = db.query(Transcription).filter(Transcription.video_id == video_id).first()
 
     if not transcription:
         raise HTTPException(
@@ -181,11 +172,7 @@ async def export_transcription(
         )
 
     # Get transcription
-    transcription = (
-        db.query(Transcription)
-        .filter(Transcription.video_id == video_id)
-        .first()
-    )
+    transcription = db.query(Transcription).filter(Transcription.video_id == video_id).first()
 
     if not transcription:
         raise HTTPException(

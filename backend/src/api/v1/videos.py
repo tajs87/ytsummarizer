@@ -2,6 +2,7 @@
 Video API endpoints.
 Handles video submission, listing, and status checking.
 """
+
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -48,9 +49,7 @@ async def submit_video(
     url_str = str(request.url)
 
     # Generate URL hash for deduplication
-    owner_scope = (
-        f"user:{context.user.id}" if context.user else f"guest:{context.guest_session.id}"
-    )
+    owner_scope = f"user:{context.user.id}" if context.user else f"guest:{context.guest_session.id}"
     url_hash = Video.generate_url_hash(url_str, user_scope=owner_scope)
     print(f"[DEBUG] Generated URL hash: {url_hash}", flush=True)
     logger.info(f"[SUBMIT] Generated URL hash: {url_hash}")
@@ -69,8 +68,13 @@ async def submit_video(
     print(f"[DEBUG] Existing video check: {existing_video}", flush=True)
 
     if existing_video:
-        print(f"[DEBUG] Found existing video: id={existing_video.id}, status={existing_video.status}", flush=True)
-        logger.info(f"[SUBMIT] Found existing video: id={existing_video.id}, status={existing_video.status}")
+        print(
+            f"[DEBUG] Found existing video: id={existing_video.id}, status={existing_video.status}",
+            flush=True,
+        )
+        logger.info(
+            f"[SUBMIT] Found existing video: id={existing_video.id}, status={existing_video.status}"
+        )
         # Return existing video (may be processing or completed)
         has_transcription = existing_video.transcription is not None
         return VideoResponse(
@@ -108,10 +112,7 @@ async def submit_video(
 
     # Dispatch Celery task chain
     # extract_video_task -> transcribe_audio_task
-    task_chain = (
-        extract_video_task.s(video.id)
-        | transcribe_audio_task.s(video.id)
-    )
+    task_chain = extract_video_task.s(video.id) | transcribe_audio_task.s(video.id)
     result = task_chain.apply_async()
 
     # Update video with task_id
@@ -165,12 +166,7 @@ async def list_videos(
 
     # Paginate
     offset = (page - 1) * page_size
-    videos = (
-        query.order_by(Video.created_at.desc())
-        .offset(offset)
-        .limit(page_size)
-        .all()
-    )
+    videos = query.order_by(Video.created_at.desc()).offset(offset).limit(page_size).all()
 
     # Convert to response models
     video_responses = []

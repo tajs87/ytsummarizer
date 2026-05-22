@@ -79,7 +79,9 @@ class FakeTask:
 
 def test_post_videos_contract(monkeypatch):
     fake_db = FakeDBSession()
-    user = User(id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False)
+    user = User(
+        id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False
+    )
 
     async def fake_get_db():
         yield fake_db
@@ -116,7 +118,9 @@ def test_post_videos_contract(monkeypatch):
 
 def test_get_video_by_id_contract(monkeypatch):
     fake_db = FakeDBSession()
-    user = User(id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False)
+    user = User(
+        id=1, email="test@example.com", hashed_password="x", is_active=True, is_superuser=False
+    )
 
     video = Video(
         id=1,

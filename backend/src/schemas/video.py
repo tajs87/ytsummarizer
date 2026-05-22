@@ -1,6 +1,7 @@
 """
 Pydantic schemas for video endpoints.
 """
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field, HttpUrl
@@ -31,9 +32,7 @@ class VideoResponse(BaseModel):
     task_id: str | None = Field(None, description="Celery task ID for tracking")
     created_at: datetime = Field(..., description="Creation timestamp")
     completed_at: datetime | None = Field(None, description="Completion timestamp")
-    has_transcription: bool = Field(
-        False, description="Whether transcription is available"
-    )
+    has_transcription: bool = Field(False, description="Whether transcription is available")
 
     model_config = {"from_attributes": True}
 

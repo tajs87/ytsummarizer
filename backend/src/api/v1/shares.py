@@ -28,10 +28,14 @@ async def create_share_link(
 ) -> ShareLinkResponse:
     """Create a shareable timestamp link for a video."""
     # Verify video ownership
-    video = db.query(Video).filter(
-        Video.id == video_id,
-        Video.user_id == current_user.id,
-    ).first()
+    video = (
+        db.query(Video)
+        .filter(
+            Video.id == video_id,
+            Video.user_id == current_user.id,
+        )
+        .first()
+    )
 
     if not video:
         raise HTTPException(

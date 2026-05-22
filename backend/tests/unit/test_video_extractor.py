@@ -1,4 +1,3 @@
-
 from src.models.video import VideoPlatform
 from src.services.video_extractor import VideoExtractor
 
@@ -6,9 +5,14 @@ from src.services.video_extractor import VideoExtractor
 def test_detect_platform_from_urls():
     extractor = VideoExtractor()
 
-    assert extractor._detect_platform("https://www.youtube.com/watch?v=jNQXAC9IVRw", {}) == VideoPlatform.YOUTUBE
+    assert (
+        extractor._detect_platform("https://www.youtube.com/watch?v=jNQXAC9IVRw", {})
+        == VideoPlatform.YOUTUBE
+    )
     assert extractor._detect_platform("https://vimeo.com/123456", {}) == VideoPlatform.VIMEO
-    assert extractor._detect_platform("https://cdn.example.com/video.mp4", {}) == VideoPlatform.DIRECT
+    assert (
+        extractor._detect_platform("https://cdn.example.com/video.mp4", {}) == VideoPlatform.DIRECT
+    )
 
 
 def test_validate_url_uses_platform_and_downloader(monkeypatch):

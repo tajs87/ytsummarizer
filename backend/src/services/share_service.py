@@ -58,10 +58,14 @@ class ShareService:
         token: str,
     ) -> dict | None:
         """Get publicly accessible shared content by token."""
-        link = db.query(ShareableLink).filter(
-            ShareableLink.token == token,
-            ShareableLink.is_active,
-        ).first()
+        link = (
+            db.query(ShareableLink)
+            .filter(
+                ShareableLink.token == token,
+                ShareableLink.is_active,
+            )
+            .first()
+        )
 
         if not link:
             return None
@@ -72,9 +76,9 @@ class ShareService:
 
         # Get related video and transcription
         video = db.query(Video).filter(Video.id == link.video_id).first()
-        transcription = db.query(Transcription).filter(
-            Transcription.video_id == link.video_id
-        ).first()
+        transcription = (
+            db.query(Transcription).filter(Transcription.video_id == link.video_id).first()
+        )
 
         if not video or not transcription:
             return None

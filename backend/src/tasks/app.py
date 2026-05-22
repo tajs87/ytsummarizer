@@ -1,6 +1,7 @@
 """
 Celery application configuration for async task processing.
 """
+
 from celery import Celery
 
 from src.core.config import get_settings

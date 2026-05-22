@@ -1,6 +1,7 @@
 """
 Test database utilities and helpers.
 """
+
 from typing import Any
 
 from sqlalchemy.orm import Session

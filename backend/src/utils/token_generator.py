@@ -17,4 +17,4 @@ def generate_share_token(length: int = 32) -> str:
         URL-safe random token
     """
     alphabet = string.ascii_letters + string.digits + "-_"
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(alphabet) for _ in range(length))

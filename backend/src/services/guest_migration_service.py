@@ -1,4 +1,5 @@
 """Service for atomic migration of guest-owned videos to authenticated users."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime

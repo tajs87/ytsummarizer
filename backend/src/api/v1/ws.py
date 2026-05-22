@@ -2,6 +2,7 @@
 WebSocket endpoint for real-time progress updates.
 Provides live transcription progress to frontend clients.
 """
+
 import asyncio
 from typing import Any
 
@@ -74,7 +75,9 @@ async def progress_websocket(
             elif result.state == "FAILURE":
                 payload = {
                     "progress": int(meta.get("progress", 0)) if meta else 0,
-                    "message": str(meta.get("error", "Processing failed")) if meta else "Processing failed",
+                    "message": str(meta.get("error", "Processing failed"))
+                    if meta
+                    else "Processing failed",
                     "status": "failed",
                 }
             elif result.state == "STARTED":

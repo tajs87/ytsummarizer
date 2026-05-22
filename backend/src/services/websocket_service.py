@@ -2,6 +2,7 @@
 WebSocket manager for broadcasting progress updates.
 Manages connections and message distribution to connected clients.
 """
+
 from typing import Any
 
 from fastapi import WebSocket

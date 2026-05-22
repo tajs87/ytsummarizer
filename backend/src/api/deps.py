@@ -1,4 +1,5 @@
 """FastAPI dependencies for authentication, guest context, and database access."""
+
 from dataclasses import dataclass
 from typing import Annotated
 

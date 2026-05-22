@@ -1,6 +1,7 @@
 """
 Authentication endpoints for user registration and login.
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status

@@ -53,9 +53,9 @@ def extract_highlights_task(
             raise SummaryNotFoundError(summary_id)
 
         # Get transcription for context
-        transcription = db.query(Transcription).filter(
-            Transcription.video_id == summary.video_id
-        ).first()
+        transcription = (
+            db.query(Transcription).filter(Transcription.video_id == summary.video_id).first()
+        )
         if not transcription:
             raise VideoNotFoundError(summary.video_id)
 

@@ -45,9 +45,7 @@ def generate_summary_task(
             raise VideoNotFoundError(video_id)
 
         # Get transcription
-        transcription = db.query(Transcription).filter(
-            Transcription.video_id == video_id
-        ).first()
+        transcription = db.query(Transcription).filter(Transcription.video_id == video_id).first()
         if not transcription:
             raise VideoNotFoundError(video_id)
 

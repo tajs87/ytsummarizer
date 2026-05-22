@@ -2,6 +2,7 @@
 Database session management for SQLAlchemy.
 Provides connection pooling and session lifecycle management.
 """
+
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
