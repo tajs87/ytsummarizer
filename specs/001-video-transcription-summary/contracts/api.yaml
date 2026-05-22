@@ -1,0 +1,721 @@
+openapi: 3.1.0
+info:
+  title: YTSummarizer API
+  version: 1.0.0
+  description: |
+    Video transcription and summarization API for YouTube and public video URLs.
+    
+    ## Authentication
+    All endpoints require JWT bearer token authentication (except /auth endpoints).
+    
+    ## Rate Limiting
+    - API calls: 100 requests/minute per user
+    - Video submissions: 10 videos/hour per user
+  contact:
+    name: YTSummarizer Support
+    email: support@ytsummarizer.example.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+  - url: https://api.ytsummarizer.com/v1
+    description: Production
+
+tags:
+  - name: auth
+    description: Authentication and user management
+  - name: videos
+    description: Video submission and status
+  - name: transcriptions
+    description: Transcript access and search
+  - name: summaries
+    description: Summary generation and retrieval
+  - name: shares
+    description: Shareable link management
+
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: Register new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, username, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                  example: johndoe
+                password:
+                  type: string
+                  minLength: 8
+                  example: SecurePass123!
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email or username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Authenticate user and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    type: integer
+                    example: 86400
+                    description: Token expiration in seconds
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /videos:
+    get:
+      tags: [videos]
+      summary: Get user's video history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [submitted, extracting, extracted, transcribing, transcribed, summarizing, completed, failed]
+      responses:
+        '200':
+          description: Video list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VideoResponse'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [videos]
+      summary: Submit video URL for transcription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  example: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+                language:
+                  type: string
+                  example: en
+                  description: Optional language hint (ISO 639-1 code)
+      responses:
+        '202':
+          description: Video accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoResponse'
+        '400':
+          description: Invalid URL or unsupported platform
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error_code: VID-001
+                message: Invalid video URL format
+                detail: URL must start with http:// or https://
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /videos/{video_id}:
+    get:
+      tags: [videos]
+      summary: Get video details and status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Video details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /videos/{video_id}/transcription:
+    get:
+      tags: [transcriptions]
+      summary: Get transcription for video
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, text, srt, vtt]
+            default: json
+          description: Response format
+      responses:
+        '200':
+          description: Transcription retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionResponse'
+            text/plain:
+              schema:
+                type: string
+                example: Welcome to this tutorial...
+        '404':
+          description: Video not found or transcription not yet complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transcriptions/{transcription_id}/search:
+    get:
+      tags: [transcriptions]
+      summary: Search within transcription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: transcription_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          example: machine learning
+        - name: case_sensitive
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  total_matches:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        segment_id:
+                          type: integer
+                        timestamp:
+                          type: number
+                        text:
+                          type: string
+                        context:
+                          type: string
+                          description: Surrounding text for context
+
+  /videos/{video_id}/summaries:
+    post:
+      tags: [summaries]
+      summary: Generate summary for video
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                summary_type:
+                  type: string
+                  enum: [brief, medium, detailed]
+                  default: medium
+      responses:
+        '202':
+          description: Summary generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    example: processing
+        '400':
+          description: Transcription not complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags: [summaries]
+      summary: Get all summaries for video
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Summaries retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SummaryResponse'
+
+  /summaries/{summary_id}:
+    get:
+      tags: [summaries]
+      summary: Get specific summary with highlights
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: summary_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Summary with highlights
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummaryDetailResponse'
+
+  /videos/{video_id}/share:
+    post:
+      tags: [shares]
+      summary: Create shareable link for video timestamp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: video_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timestamp]
+              properties:
+                timestamp:
+                  type: number
+                  example: 125.5
+                  description: Video position in seconds
+                duration:
+                  type: integer
+                  example: 30
+                  description: Optional clip duration
+                title:
+                  type: string
+                  example: Key insight about AI
+                description:
+                  type: string
+                  example: Important discussion on model training
+                expires_in_days:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  example: 30
+      responses:
+        '201':
+          description: Shareable link created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLinkResponse'
+
+  /share/{token}:
+    get:
+      tags: [shares]
+      summary: Resolve shareable link (public, no auth required)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+            example: abc123xy
+      responses:
+        '200':
+          description: Share link details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  video_url:
+                    type: string
+                    example: https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=125
+                  timestamp:
+                    type: number
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  transcript_excerpt:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: Link not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        username:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    VideoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+        platform:
+          type: string
+          enum: [youtube, vimeo, direct, other]
+        title:
+          type: string
+          nullable: true
+        duration_seconds:
+          type: integer
+          nullable: true
+        thumbnail_url:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [submitted, extracting, extracted, transcribing, transcribed, summarizing, completed, failed]
+        error_code:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    VideoDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/VideoResponse'
+        - type: object
+          properties:
+            has_transcription:
+              type: boolean
+            has_summary:
+              type: boolean
+            metadata:
+              type: object
+              additionalProperties: true
+
+    TranscriptionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        video_id:
+          type: string
+          format: uuid
+        language:
+          type: string
+        duration_seconds:
+          type: integer
+        word_count:
+          type: integer
+        segments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              start:
+                type: number
+              end:
+                type: number
+              text:
+                type: string
+              speaker:
+                type: string
+                nullable: true
+              confidence:
+                type: number
+        confidence_score:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    SummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        transcription_id:
+          type: string
+          format: uuid
+        summary_type:
+          type: string
+          enum: [brief, medium, detailed]
+        content:
+          type: string
+        word_count:
+          type: integer
+        compression_ratio:
+          type: number
+        main_topics:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SummaryDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/SummaryResponse'
+        - type: object
+          properties:
+            highlights:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  timestamp_start:
+                    type: number
+                  timestamp_end:
+                    type: number
+                  text:
+                    type: string
+                  importance_score:
+                    type: number
+                  category:
+                    type: string
+                    enum: [definition, action_item, key_insight, example, conclusion]
+
+    ShareLinkResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token:
+          type: string
+          example: abc123xy
+        share_url:
+          type: string
+          example: https://ytsummarizer.com/share/abc123xy
+        video_url:
+          type: string
+        timestamp:
+          type: number
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error_code:
+          type: string
+          example: VID-001
+        message:
+          type: string
+          example: Invalid video URL format
+        detail:
+          type: string
+          nullable: true
+          example: URL must start with http:// or https://
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
