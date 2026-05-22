@@ -7,7 +7,7 @@ import type { Transcription } from '@/types/api';
 import { useSearchTranscription, exportTranscription } from '@/services/transcriptions';
 import { ShareDialog } from '@/components/ShareDialog';
 
-interface TranscriptionViewProps {
+type TranscriptionViewProps = {
   transcription: Transcription;
   videoTitle?: string;
 }
@@ -127,7 +127,7 @@ export function TranscriptionView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {videoTitle || 'Transcription'}
+            {videoTitle ?? 'Transcription'}
           </h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {transcription.word_count.toLocaleString()} words •{' '}
@@ -175,7 +175,7 @@ export function TranscriptionView({
         <input
           type="text"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); }}
           placeholder="Search within transcription..."
           className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
                    focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -208,7 +208,7 @@ export function TranscriptionView({
         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-200">
             Found {searchMutation.data.total_matches} result
-            {searchMutation.data.total_matches !== 1 ? 's' : ''} for "{searchMutation.data.query}"
+            {searchMutation.data.total_matches !== 1 ? 's' : ''} for &ldquo;{searchMutation.data.query}&rdquo;
           </p>
         </div>
       )}
@@ -216,7 +216,7 @@ export function TranscriptionView({
       {/* View mode toggle */}
       <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
         <button
-          onClick={() => setViewMode('segments')}
+          onClick={() => { setViewMode('segments'); }}
           className={`px-4 py-2 font-medium transition-colors ${
             viewMode === 'segments'
               ? 'text-blue-600 border-b-2 border-blue-600'
@@ -226,7 +226,7 @@ export function TranscriptionView({
           Segments
         </button>
         <button
-          onClick={() => setViewMode('full')}
+          onClick={() => { setViewMode('full'); }}
           className={`px-4 py-2 font-medium transition-colors ${
             viewMode === 'full'
               ? 'text-blue-600 border-b-2 border-blue-600'

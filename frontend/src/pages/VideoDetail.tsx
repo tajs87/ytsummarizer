@@ -25,6 +25,7 @@ export function VideoDetail() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (videoError || !video) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
@@ -37,7 +38,7 @@ export function VideoDetail() {
               The requested video could not be found.
             </p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => { navigate('/'); }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Go Home
@@ -62,7 +63,7 @@ export function VideoDetail() {
           </Link>
           <span>/</span>
           <span className="text-gray-900 dark:text-white">
-            {video.title || 'Video'}
+            {video.title ?? 'Video'}
           </span>
         </nav>
 
@@ -71,7 +72,7 @@ export function VideoDetail() {
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {video.title || 'Untitled Video'}
+                {video.title ?? 'Untitled Video'}
               </h1>
               <a
                 href={video.url}
@@ -147,7 +148,7 @@ export function VideoDetail() {
                 <SummaryPanel videoId={video.id} />
                 <TranscriptionView
                   transcription={transcription}
-                  videoTitle={video.title || 'Video'}
+                  videoTitle={video.title ?? 'Video'}
                 />
               </>
             )}
@@ -161,10 +162,10 @@ export function VideoDetail() {
               Processing Failed
             </h3>
             <p className="text-sm text-red-700 dark:text-red-300 mb-4">
-              {video.error_message || 'An error occurred during processing.'}
+              {video.error_message ?? 'An error occurred during processing.'}
             </p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => { navigate('/'); }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Try Another Video

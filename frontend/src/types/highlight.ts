@@ -2,7 +2,7 @@
  * Type definitions for highlight entities.
  */
 
-export interface Highlight {
+export type Highlight = {
   id: number;
   summary_id: number;
   text: string;
@@ -12,7 +12,7 @@ export interface Highlight {
   created_at: string;
 }
 
-export interface HighlightListResponse {
+export type HighlightListResponse = {
   highlights: Highlight[];
   total: number;
 }

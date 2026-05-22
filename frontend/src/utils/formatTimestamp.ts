@@ -63,5 +63,5 @@ export function parseTimestamp(timestamp: string): number {
     return minutes * 60 + seconds;
   }
 
-  return parts[0] || 0;
+  return parts[0] ?? 0;
 }

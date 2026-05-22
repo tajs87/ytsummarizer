@@ -17,7 +17,7 @@ export function VideoList() {
   const handleDelete = async (videoId: number, videoTitle: string | null) => {
     if (
       !confirm(
-        `Are you sure you want to delete "${videoTitle || 'this video'}"?`
+        `Are you sure you want to delete "${videoTitle ?? 'this video'}"?`
       )
     ) {
       return;
@@ -115,11 +115,11 @@ export function VideoList() {
           Filter by status:
         </label>
         <select
-          value={statusFilter || ''}
+          value={statusFilter ?? ''}
           onChange={(e) =>
-            setStatusFilter(
+            { setStatusFilter(
               e.target.value ? (e.target.value as VideoStatus) : undefined
-            )
+            ); }
           }
           className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
                    bg-white dark:bg-gray-800 text-gray-900 dark:text-white
@@ -153,7 +153,7 @@ export function VideoList() {
                     to={`/video/${video.id}`}
                     className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate"
                   >
-                    {video.title || 'Untitled Video'}
+                    {video.title ?? 'Untitled Video'}
                   </Link>
                   {getStatusBadge(video.status)}
                 </div>
@@ -214,7 +214,7 @@ export function VideoList() {
       {data.total > data.page_size && (
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => { setPage((p) => Math.max(1, p - 1)); }}
             disabled={page === 1}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 
                      text-gray-700 dark:text-gray-200 rounded-lg
@@ -228,7 +228,7 @@ export function VideoList() {
           </span>
 
           <button
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => { setPage((p) => p + 1); }}
             disabled={page >= Math.ceil(data.total / data.page_size)}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 
                      text-gray-700 dark:text-gray-200 rounded-lg

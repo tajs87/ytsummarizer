@@ -12,7 +12,7 @@ export type VideoStatus =
   | 'COMPLETED' 
   | 'FAILED';
 
-export interface Video {
+export type Video = {
   id: number;
   url: string;
   platform: VideoPlatform;
@@ -26,11 +26,11 @@ export interface Video {
   has_transcription: boolean;
 }
 
-export interface VideoSubmitRequest {
+export type VideoSubmitRequest = {
   url: string;
 }
 
-export interface VideoListResponse {
+export type VideoListResponse = {
   videos: Video[];
   total: number;
   page: number;
@@ -39,7 +39,7 @@ export interface VideoListResponse {
   history_scope?: 'account' | 'session';
 }
 
-export interface TranscriptionSegment {
+export type TranscriptionSegment = {
   id: number;
   start: number;
   end: number;
@@ -47,7 +47,7 @@ export interface TranscriptionSegment {
   speaker?: string;
 }
 
-export interface Transcription {
+export type Transcription = {
   id: number;
   video_id: number;
   full_text: string;
@@ -58,51 +58,51 @@ export interface Transcription {
   created_at: string;
 }
 
-export interface TranscriptionSearchRequest {
+export type TranscriptionSearchRequest = {
   query: string;
 }
 
-export interface TranscriptionSearchResult {
+export type TranscriptionSearchResult = {
   segment: TranscriptionSegment;
   match_count: number;
 }
 
-export interface TranscriptionSearchResponse {
+export type TranscriptionSearchResponse = {
   query: string;
   total_matches: number;
   results: TranscriptionSearchResult[];
 }
 
-export interface ProgressUpdate {
+export type ProgressUpdate = {
   progress: number;
   message: string;
   status: 'processing' | 'completed' | 'failed';
 }
 
-export interface AuthToken {
+export type AuthToken = {
   access_token: string;
   token_type: string;
   migrated_items?: number;
 }
 
-export interface User {
+export type User = {
   id: number;
   email: string;
   is_active: boolean;
   is_superuser: boolean;
 }
 
-export interface UserRegisterRequest {
+export type UserRegisterRequest = {
   email: string;
   password: string;
 }
 
-export interface UserLoginRequest {
+export type UserLoginRequest = {
   email: string;
   password: string;
 }
 
-export interface ErrorResponse {
+export type ErrorResponse = {
   error_code: string;
   message: string;
   details?: Record<string, unknown>;

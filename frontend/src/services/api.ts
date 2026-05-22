@@ -2,8 +2,9 @@
  * API client configuration with interceptors.
  * Provides authenticated requests with automatic token injection.
  */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 
-const API_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8000';
+const API_URL = import.meta.env['VITE_API_URL'] ?? 'http://localhost:8000';
 
 export type ApiResponse<T> = {
   data: T;

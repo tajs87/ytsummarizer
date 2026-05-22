@@ -4,12 +4,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ProgressUpdate } from '@/types/api';
 
-interface UseProgressWebSocketOptions {
+type UseProgressWebSocketOptions = {
   taskId: string | null;
   onProgress?: (update: ProgressUpdate) => void;
   onComplete?: () => void;
   onError?: (error: Error) => void;
 }
+
+type WebSocketWithPing = WebSocket & { _pingInterval?: ReturnType<typeof setInterval> };
 
 export function useProgressWebSocket({
   taskId,
@@ -32,8 +34,9 @@ export function useProgressWebSocket({
   useEffect(() => {
     if (!taskId) return;
 
-    const wsUrl = import.meta.env['VITE_WS_URL'] || 'ws://localhost:8000';
-    const ws = new WebSocket(`${wsUrl}/api/v1/ws/progress/${taskId}`);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const wsUrl = import.meta.env['VITE_WS_URL'] ?? 'ws://localhost:8000';
+    const ws: WebSocketWithPing = new WebSocket(`${wsUrl}/api/v1/ws/progress/${taskId}`);
     let isIntentionalClose = false;
 
     ws.onopen = () => {
@@ -47,11 +50,12 @@ export function useProgressWebSocket({
       }, 30000); // Ping every 30 seconds
 
       // Store interval ID for cleanup
-      (ws as any)._pingInterval = pingInterval;
+      ws._pingInterval = pingInterval;
     };
 
     ws.onmessage = (event) => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const data = JSON.parse(event.data) as ProgressUpdate | { type: string };
 
         // Ignore pong responses
@@ -98,16 +102,16 @@ export function useProgressWebSocket({
       setIsConnected(false);
       
       // Clear ping interval
-      if ((ws as any)._pingInterval) {
-        clearInterval((ws as any)._pingInterval);
+      if (ws._pingInterval) {
+        clearInterval(ws._pingInterval);
       }
     };
 
     // Cleanup on unmount
     return () => {
       isIntentionalClose = true;
-      if ((ws as any)._pingInterval) {
-        clearInterval((ws as any)._pingInterval);
+      if (ws._pingInterval) {
+        clearInterval(ws._pingInterval);
       }
       ws.close();
     };

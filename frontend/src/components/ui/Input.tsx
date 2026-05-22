@@ -6,14 +6,14 @@
 import { InputHTMLAttributes, forwardRef } from 'react';
 import { cn } from '../../utils/cn';
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export type InputProps = {
   label?: string;
   error?: string;
-}
+} & InputHTMLAttributes<HTMLInputElement>
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, id, ...props }, ref) => {
-    const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
       <div className="w-full">

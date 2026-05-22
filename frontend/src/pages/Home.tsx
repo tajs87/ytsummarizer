@@ -79,7 +79,7 @@ export function Home() {
                 </button>
               ) : (
                 <button
-                  onClick={() => setShowAuthPanel((prev) => !prev)}
+                  onClick={() => { setShowAuthPanel((prev) => !prev); }}
                   className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
                 >
                   {showAuthPanel ? 'Hide Login' : 'Save Permanently'}
@@ -102,7 +102,7 @@ export function Home() {
                   Want to keep your guest history after this session?
                 </p>
                 <button
-                  onClick={() => setShowAuthPanel(true)}
+                  onClick={() => { setShowAuthPanel(true); }}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
                 >
                   Save Permanently
@@ -129,7 +129,7 @@ export function Home() {
                     <input
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => { setEmail(e.target.value); }}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-900 dark:text-white"
                       required
                     />
@@ -142,7 +142,7 @@ export function Home() {
                     <input
                       type="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => { setPassword(e.target.value); }}
                       minLength={8}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-900 dark:text-white"
                       required
@@ -178,7 +178,7 @@ export function Home() {
         )}
 
         {/* Progress tracker */}
-        {video && video.task_id && video.status !== 'COMPLETED' && (
+        {video?.task_id && video.status !== 'COMPLETED' && (
           <ProgressTracker taskId={video.task_id} videoId={video.id} />
         )}
 
@@ -191,7 +191,7 @@ export function Home() {
                   ✓ Transcription Complete
                 </h3>
                 <p className="mt-1 text-sm text-green-700 dark:text-green-300">
-                  {video.title || 'Your video'} has been transcribed successfully
+                  {video.title ?? 'Your video'} has been transcribed successfully
                 </p>
               </div>
               <Link
@@ -222,7 +222,7 @@ export function Home() {
               Full-Text Search
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Search through transcripts to find exactly what you're looking for
+              Search through transcripts to find exactly what you&apos;re looking for
             </p>
           </div>
 
@@ -243,7 +243,7 @@ export function Home() {
             Already have videos?
           </p>
           <button
-            onClick={() => navigate('/history')}
+            onClick={() => { navigate('/history'); }}
             className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 
                      text-gray-900 dark:text-white font-medium rounded-lg transition-colors"
           >

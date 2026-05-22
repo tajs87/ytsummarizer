@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useSubmitVideo } from '@/services/videos';
 import { validateVideoUrl } from '@/utils/validators';
 
-interface VideoInputProps {
+type VideoInputProps = {
   onSubmitSuccess?: (videoId: number) => void;
 }
 
@@ -51,7 +51,7 @@ export function VideoInput({ onSubmitSuccess }: VideoInputProps) {
             id="video-url"
             type="url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => { setUrl(e.target.value); }}
             placeholder="https://www.youtube.com/watch?v=..."
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
                      focus:ring-2 focus:ring-blue-500 focus:border-transparent

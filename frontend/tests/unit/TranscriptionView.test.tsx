@@ -42,7 +42,7 @@ describe('TranscriptionView', () => {
     expect(screen.getByText('from transcript')).toBeInTheDocument();
   });
 
-  it('runs search mutation when submitting search form', async () => {
+  it('runs search mutation when submitting search form', () => {
     render(<TranscriptionView transcription={transcription} videoTitle="Demo" />);
 
     fireEvent.change(screen.getByPlaceholderText('Search within transcription...'), {

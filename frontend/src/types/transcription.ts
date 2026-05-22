@@ -2,14 +2,14 @@
  * Type definitions for transcription entities and operations.
  */
 
-export interface TranscriptionSegment {
+export type TranscriptionSegment = {
   id: number;
   start_time: number;
   end_time: number;
   text: string;
 }
 
-export interface Transcription {
+export type Transcription = {
   id: number;
   video_id: number;
   full_text: string;
@@ -19,16 +19,16 @@ export interface Transcription {
   updated_at: string;
 }
 
-export interface TranscriptionResponse {
+export type TranscriptionResponse = {
   transcription: Transcription;
 }
 
-export interface TranscriptionSearchRequest {
+export type TranscriptionSearchRequest = {
   query: string;
   max_results?: number;
 }
 
-export interface TranscriptionSearchResult {
+export type TranscriptionSearchResult = {
   segment_id: number;
   text: string;
   start_time: number;
@@ -36,7 +36,7 @@ export interface TranscriptionSearchResult {
   match_score: number;
 }
 
-export interface TranscriptionSearchResponse {
+export type TranscriptionSearchResponse = {
   results: TranscriptionSearchResult[];
   total: number;
 }

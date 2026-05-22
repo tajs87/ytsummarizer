@@ -7,7 +7,7 @@ export type VideoStatus =  | 'PENDING'
   | 'COMPLETED'
   | 'FAILED';
 
-export interface Video {
+export type Video = {
   id: number;
   url: string;
   title: string | null;
@@ -19,22 +19,22 @@ export interface Video {
   updated_at: string;
 }
 
-export interface VideoSubmitRequest {
+export type VideoSubmitRequest = {
   url: string;
 }
 
-export interface VideoSubmitResponse {
+export type VideoSubmitResponse = {
   id: number;
   url: string;
   status: VideoStatus;
   message: string;
 }
 
-export interface VideoListResponse {
+export type VideoListResponse = {
   videos: Video[];
   total: number;
 }
 
-export interface VideoDetailResponse extends Video {
+export type VideoDetailResponse = {
   has_transcription: boolean;
-}
+} & Video

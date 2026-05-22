@@ -5,12 +5,12 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-export interface WebSocketMessage {
+export type WebSocketMessage = {
   type: string;
   data: unknown;
 }
 
-interface UseWebSocketOptions {
+type UseWebSocketOptions = {
   onMessage?: (message: WebSocketMessage) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
@@ -54,6 +54,7 @@ export function useWebSocket(url: string | null, options: UseWebSocketOptions = 
 
       ws.onmessage = (event) => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
           const message: WebSocketMessage = JSON.parse(event.data);
           setLastMessage(message);
           onMessage?.(message);

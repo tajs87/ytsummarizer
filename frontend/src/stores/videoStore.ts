@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { Video, VideoStatus } from '../types/video';
 
-interface VideoState {
+type VideoState = {
   currentVideo: Video | null;
   processingVideos: Map<number, { progress: number; status: VideoStatus }>;
   
@@ -22,42 +22,42 @@ export const useVideoStore = create<VideoState>((set) => ({
   currentVideo: null,
   processingVideos: new Map(),
 
-  setCurrentVideo: (video) => set({ currentVideo: video }),
+  setCurrentVideo: (video) => { set({ currentVideo: video }); },
 
   updateVideoStatus: (videoId, status) =>
-    set((state) => {
+    { set((state) => {
       const processingVideos = new Map(state.processingVideos);
       const existing = processingVideos.get(videoId);
       if (existing) {
         processingVideos.set(videoId, { ...existing, status });
       }
       return { processingVideos };
-    }),
+    }); },
 
   updateVideoProgress: (videoId, progress) =>
-    set((state) => {
+    { set((state) => {
       const processingVideos = new Map(state.processingVideos);
       const existing = processingVideos.get(videoId);
       if (existing) {
         processingVideos.set(videoId, { ...existing, progress });
       }
       return { processingVideos };
-    }),
+    }); },
 
   addProcessingVideo: (videoId) =>
-    set((state) => {
+    { set((state) => {
       const processingVideos = new Map(state.processingVideos);
       processingVideos.set(videoId, { progress: 0, status: 'PENDING' });
       return { processingVideos };
-    }),
+    }); },
 
   removeProcessingVideo: (videoId) =>
-    set((state) => {
+    { set((state) => {
       const processingVideos = new Map(state.processingVideos);
       processingVideos.delete(videoId);
       return { processingVideos };
-    }),
+    }); },
 
   clearProcessingVideos: () =>
-    set({ processingVideos: new Map() }),
+    { set({ processingVideos: new Map() }); },
 }));

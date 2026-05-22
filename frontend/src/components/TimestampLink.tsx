@@ -4,7 +4,7 @@
 
 import { formatTimestamp } from '../utils/formatTimestamp';
 
-interface TimestampLinkProps {
+type TimestampLinkProps = {
   timeInSeconds: number;
   onClick?: (timeInSeconds: number) => void;
   className?: string;

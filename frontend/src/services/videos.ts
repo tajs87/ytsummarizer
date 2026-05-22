@@ -44,7 +44,7 @@ export function useSubmitVideo() {
     },
     onSuccess: () => {
       // Invalidate videos list to refetch
-      queryClient.invalidateQueries({ queryKey: [VIDEOS_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [VIDEOS_KEY] });
     },
   });
 }
@@ -118,7 +118,7 @@ export function useDeleteVideo() {
       await apiClient.delete(`/api/v1/videos/${videoId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [VIDEOS_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [VIDEOS_KEY] });
     },
   });
 }

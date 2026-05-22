@@ -27,7 +27,7 @@ export function useVideoProcessing() {
       addProcessingVideo(data.id);
       
       // Invalidate videos list to refetch
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      void queryClient.invalidateQueries({ queryKey: ['videos'] });
     },
   });
 
@@ -42,8 +42,8 @@ export function useVideoProcessing() {
     if (status === 'COMPLETED' || status === 'FAILED') {
       removeProcessingVideo(videoId);
       // Invalidate queries to refetch updated video
-      queryClient.invalidateQueries({ queryKey: ['videos'] });
-      queryClient.invalidateQueries({ queryKey: ['video', videoId] });
+      void queryClient.invalidateQueries({ queryKey: ['videos'] });
+      void queryClient.invalidateQueries({ queryKey: ['video', videoId] });
     }
   };
 

@@ -10,7 +10,7 @@ import { TimestampLink } from '../components/TimestampLink';
 
 export function SharePage() {
   const { token } = useParams<{ token: string }>();
-  const { data, isLoading, error } = useSharedContent(token || '');
+  const { data, isLoading, error } = useSharedContent(token ?? '');
 
   if (isLoading) {
     return (
@@ -23,6 +23,7 @@ export function SharePage() {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -46,7 +47,7 @@ export function SharePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>{data.title || data.video_title || 'Shared Video Segment'}</CardTitle>
+            <CardTitle>{data.title ?? data.video_title ?? 'Shared Video Segment'}</CardTitle>
             <div className="flex items-center text-sm text-gray-600 mt-2">
               <Clock className="h-4 w-4 mr-1" />
               <span>Timestamp: </span>

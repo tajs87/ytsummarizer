@@ -10,7 +10,7 @@ export function useSummary(videoId: number) {
   const summariesQuery = useVideoSummaries(videoId);
 
   const getLatestSummaryForType = (
-    summaries: Array<{ summary_type: SummaryType; created_at: string; highlights: Array<unknown> }>,
+    summaries: { summary_type: SummaryType; created_at: string; highlights: unknown[] }[],
     summaryType: SummaryType
   ) => {
     const matches = summaries
@@ -39,8 +39,8 @@ export function useSummary(videoId: number) {
   };
 
   return {
-    summaries: summariesQuery.data?.summaries || [],
-    total: summariesQuery.data?.total || 0,
+    summaries: summariesQuery.data?.summaries ?? [],
+    total: summariesQuery.data?.total ?? 0,
     isLoading: summariesQuery.isLoading,
     error: summariesQuery.error,
     refetch: summariesQuery.refetch,

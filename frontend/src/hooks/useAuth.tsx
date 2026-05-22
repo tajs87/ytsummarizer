@@ -2,20 +2,21 @@
  * Authentication context and hooks for managing user authentication state.
  * Provides login, register, logout, and current user management.
  */
+/* eslint-disable react-refresh/only-export-components */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
 import type { AuthToken } from '@/types/api';
 
-export interface User {
+export type User = {
   id: number;
   email: string;
   is_active: boolean;
   created_at: string;
 }
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -27,7 +28,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
+type AuthProviderProps = {
   children: ReactNode;
 }
 
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(false);
     };
 
-    loadUser();
+    void loadUser();
   }, []);
 
   const login = async (email: string, password: string) => {

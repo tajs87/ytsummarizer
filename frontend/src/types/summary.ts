@@ -6,7 +6,7 @@ import { Highlight } from './highlight';
 
 export type SummaryType = 'brief' | 'detailed' | 'bullet_points';
 
-export interface Summary {
+export type Summary = {
   id: number;
   video_id: number;
   summary_type: SummaryType;
@@ -16,11 +16,11 @@ export interface Summary {
   updated_at: string;
 }
 
-export interface SummaryRequest {
+export type SummaryRequest = {
   summary_type: SummaryType;
 }
 
-export interface SummaryListResponse {
+export type SummaryListResponse = {
   summaries: Summary[];
   total: number;
 }

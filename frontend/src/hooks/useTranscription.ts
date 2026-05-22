@@ -38,7 +38,7 @@ export function useTranscription(videoId: number) {
   });
 
   // Export transcription
-  const exportTranscription = async (format: ExportFormat) => {
+  const exportTranscription = (format: ExportFormat) => {
     if (!transcriptionQuery.data) return;
 
     const transcription = transcriptionQuery.data;
@@ -47,17 +47,19 @@ export function useTranscription(videoId: number) {
     let mimeType: string;
 
     switch (format) {
-      case 'txt':
+      case 'txt': {
         content = transcription.full_text;
         filename = `transcription_${videoId}.txt`;
         mimeType = 'text/plain';
         break;
-      case 'json':
+      }
+      case 'json': {
         content = JSON.stringify(transcription, null, 2);
         filename = `transcription_${videoId}.json`;
         mimeType = 'application/json';
         break;
-      case 'csv':
+      }
+      case 'csv': {
         const csvRows = [
           ['Start Time', 'End Time', 'Text'],
           ...transcription.segments.map((seg) => [
@@ -70,6 +72,7 @@ export function useTranscription(videoId: number) {
         filename = `transcription_${videoId}.csv`;
         mimeType = 'text/csv';
         break;
+      }
     }
 
     // Create and download file
