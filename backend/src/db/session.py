@@ -5,6 +5,8 @@ Provides connection pooling and session lifecycle management.
 
 from collections.abc import Generator
 
+from typing import Any
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
@@ -26,7 +28,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Base class for ORM models
-Base = declarative_base()
+Base: Any = declarative_base()
 
 
 def get_db() -> Generator[Session, None, None]:

@@ -32,7 +32,7 @@ class VideoStatus(StrEnum):
     FAILED = "failed"  # Processing failed
 
 
-class Video(Base):
+class Video(Base):  # type: ignore[misc]
     r"""
     Video entity representing a submitted video for transcription.
 
@@ -52,10 +52,10 @@ class Video(Base):
     owner_guest_session_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("guest_sessions.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    user: Mapped["User | None"] = relationship("User", back_populates="videos")  # type: ignore[name-defined]
+    user: Mapped["User | None"] = relationship("User", back_populates="videos")
     guest_session: Mapped["GuestSession | None"] = relationship(
         "GuestSession", back_populates="videos"
-    )  # type: ignore[name-defined]
+    )
 
     # Video metadata
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
@@ -127,4 +127,4 @@ class Video(Base):
 from src.models.guest_session import GuestSession  # noqa: E402
 from src.models.user import User  # noqa: E402
 
-User.videos = relationship("Video", back_populates="user", cascade="all, delete-orphan")  # type: ignore
+User.videos = relationship("Video", back_populates="user", cascade="all, delete-orphan")

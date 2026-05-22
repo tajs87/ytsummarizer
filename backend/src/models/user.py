@@ -11,7 +11,7 @@ from sqlalchemy.sql import func
 from src.db.session import Base
 
 
-class User(Base):
+class User(Base):  # type: ignore[misc]
     """
     User entity for authentication and authorization.
     Tracks rate limiting and video processing history.

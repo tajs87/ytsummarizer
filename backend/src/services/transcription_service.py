@@ -62,7 +62,7 @@ class TranscriptionService:
             # Open audio file and transcribe
             with open(audio_path, "rb") as audio_file:
                 # Use OpenAI Whisper API with timestamps
-                response = await self.client.audio.transcriptions.create(
+                response = await self.client.audio.transcriptions.create(  # type: ignore[call-overload]
                     model="whisper-1",
                     file=audio_file,
                     response_format="verbose_json",
@@ -71,7 +71,7 @@ class TranscriptionService:
 
             # Process response
             full_text = response.text
-            segments = self._process_segments(response.segments)  # type: ignore
+            segments = self._process_segments(response.segments)
             detected_language = response.language
             word_count = len(full_text.split())
 

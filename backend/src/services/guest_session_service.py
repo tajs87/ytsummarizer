@@ -47,7 +47,7 @@ class GuestSessionService:
             expires_at=now + timedelta(seconds=self.settings.guest_session_max_age_seconds),
             is_active=True,
         )
-        guest_session.raw_token = raw_token
+        guest_session.raw_token = raw_token  # type: ignore[misc]
         db.add(guest_session)
         db.commit()
         db.refresh(guest_session)

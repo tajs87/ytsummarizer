@@ -6,7 +6,7 @@ Implements JWT token generation and password hashing.
 from datetime import datetime, timedelta
 from typing import Any
 
-from jose import JWTError, jwt
+from jose import JWTError, jwt  # type: ignore[import-untyped]
 from passlib.context import CryptContext
 
 from src.core.config import get_settings

@@ -42,7 +42,7 @@ async def generate_summary(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 
@@ -82,8 +82,10 @@ async def get_video_summaries(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     video = query.first()
 
     if not video:
@@ -115,7 +117,7 @@ async def get_summary(
     query = db.query(Summary).join(Video).filter(Summary.id == summary_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     summary = query.first()
 

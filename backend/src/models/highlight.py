@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship
 from src.db.session import Base
 
 
-class Highlight(Base):
+class Highlight(Base):  # type: ignore[misc]
     """Key moment or important quote from video transcription."""
 
     __tablename__ = "highlights"

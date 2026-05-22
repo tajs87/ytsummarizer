@@ -5,6 +5,7 @@ Downloads audio from video URL and prepares for transcription.
 
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from celery import Task
 from sqlalchemy.orm import Session
@@ -18,7 +19,7 @@ from src.tasks.app import celery_app
 from src.tasks.base import ProgressTask
 
 
-@celery_app.task(bind=True, base=ProgressTask, name="tasks.extract_video")
+@celery_app.task(bind=True, base=ProgressTask, name="tasks.extract_video")  # type: ignore[untyped-decorator]
 def extract_video_task(self: Task, video_id: int) -> dict[str, str]:
     """
     Extract audio and metadata from video URL.
@@ -67,7 +68,7 @@ def extract_video_task(self: Task, video_id: int) -> dict[str, str]:
         db.commit()
 
         # Cache metadata
-        cache_service._set_video_metadata_sync(video.url_hash, metadata)
+        cache_service._set_video_metadata_sync(video.url_hash, metadata)  # type: ignore[attr-defined]
 
         self.update_progress(40, "Downloading audio...")
 
@@ -80,8 +81,8 @@ def extract_video_task(self: Task, video_id: int) -> dict[str, str]:
         # Return audio path for next task
         return {
             "audio_path": str(audio_path),
-            "video_id": video_id,
-            "duration_seconds": video.duration_seconds or 0,
+            "video_id": str(video_id),
+            "duration_seconds": str(video.duration_seconds or 0),
         }
 
     except Exception as e:
@@ -105,7 +106,7 @@ def extract_video_task(self: Task, video_id: int) -> dict[str, str]:
 
 
 # Helper method for synchronous cache operations in Celery
-def _set_video_metadata_sync(cache, url_hash: str, metadata: dict) -> None:
+def _set_video_metadata_sync(cache: Any, url_hash: str, metadata: dict[str, Any]) -> None:
     """Synchronous cache set for Celery tasks."""
     import json
 
@@ -132,6 +133,6 @@ def _set_video_metadata_sync(cache, url_hash: str, metadata: dict) -> None:
 
 
 # Monkey-patch the sync method onto cache_service
-cache_service._set_video_metadata_sync = lambda url_hash, metadata: _set_video_metadata_sync(
+cache_service._set_video_metadata_sync = lambda url_hash, metadata: _set_video_metadata_sync(  # type: ignore[attr-defined]
     cache_service, url_hash, metadata
 )

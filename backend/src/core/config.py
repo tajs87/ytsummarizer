@@ -7,6 +7,7 @@ from functools import lru_cache
 from typing import Literal
 
 from pydantic import Field, PostgresDsn, RedisDsn, field_validator
+from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -56,26 +57,26 @@ class Settings(BaseSettings):
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
-    @field_validator("celery_broker_url", mode="before")
+    @field_validator("celery_broker_url", mode="before")  # type: ignore[type-var]
     @classmethod
-    def set_celery_broker(cls, v: str | None, info: dict) -> str:  # type: ignore
+    def set_celery_broker(cls, v: str | None, info: FieldInfo) -> str:
         """Default celery_broker_url to redis_url if not set."""
-        if v is None and "redis_url" in info.data:
+        if v is None and hasattr(info, 'data') and "redis_url" in info.data:
             return str(info.data["redis_url"])
-        return v  # type: ignore
+        return v or "redis://localhost:6379/0"
 
-    @field_validator("celery_result_backend", mode="before")
+    @field_validator("celery_result_backend", mode="before")  # type: ignore[type-var]
     @classmethod
-    def set_celery_result(cls, v: str | None, info: dict) -> str:  # type: ignore
+    def set_celery_result(cls, v: str | None, info: FieldInfo) -> str:
         """Default celery_result_backend to redis_url/1 if not set."""
-        if v is None and "redis_url" in info.data:
+        if v is None and hasattr(info, 'data') and "redis_url" in info.data:
             redis_url = str(info.data["redis_url"])
             # Change database number to 1 for results
             return redis_url.rsplit("/", 1)[0] + "/1"
-        return v  # type: ignore
+        return v or "redis://localhost:6379/1"
 
 
 @lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance."""
-    return Settings()  # type: ignore[call-arg]
+    return Settings()

@@ -53,7 +53,7 @@ class CacheService:
         cached_data = await self.client.get(key)
 
         if cached_data:
-            return json.loads(cached_data)
+            return json.loads(cached_data)  # type: ignore[no-any-return]
         return None
 
     async def set_transcription(self, url_hash: str, transcription_data: dict[str, Any]) -> None:
@@ -102,7 +102,7 @@ class CacheService:
         cached_data = await self.client.get(key)
 
         if cached_data:
-            return json.loads(cached_data)
+            return json.loads(cached_data)  # type: ignore[no-any-return]
         return None
 
     async def set_video_metadata(self, url_hash: str, metadata: dict[str, Any]) -> None:

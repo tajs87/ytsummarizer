@@ -12,7 +12,7 @@ from sqlalchemy.sql import func
 from src.db.session import Base
 
 
-class GuestSession(Base):
+class GuestSession(Base):  # type: ignore[misc]
     """Represents an anonymous browser session used for guest mode."""
 
     __tablename__ = "guest_sessions"

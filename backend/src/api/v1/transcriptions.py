@@ -41,7 +41,7 @@ async def get_transcription(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 
@@ -96,7 +96,7 @@ async def search_transcription(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 
@@ -161,7 +161,7 @@ async def export_transcription(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 

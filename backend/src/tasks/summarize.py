@@ -4,6 +4,7 @@ Processes completed transcriptions and creates summary records.
 """
 
 import asyncio
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -16,12 +17,12 @@ from src.services.summarization_service import summarization_service
 from src.tasks.app import celery_app
 
 
-@celery_app.task(name="tasks.generate_summary", bind=True, max_retries=2)
+@celery_app.task(name="tasks.generate_summary", bind=True, max_retries=2)  # type: ignore[untyped-decorator]
 def generate_summary_task(
-    self,
+    self: Any,
     video_id: int,
     summary_type: str = "brief",
-) -> dict:
+) -> dict[str, Any]:
     """
     Generate summary for a transcribed video.
 

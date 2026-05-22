@@ -11,7 +11,7 @@ from sqlalchemy.orm import relationship
 from src.db.session import Base
 
 
-class ShareableLink(Base):
+class ShareableLink(Base):  # type: ignore[misc]
     """Model for shareable timestamp links."""
 
     __tablename__ = "shareable_links"

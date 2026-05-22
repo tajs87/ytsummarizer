@@ -2,6 +2,7 @@
 Platform-specific URL validators for video submission.
 """
 
+from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from src.models.video import VideoPlatform
@@ -33,7 +34,7 @@ def validate_platform_url(url: str, platform: VideoPlatform) -> bool:
     return False
 
 
-def _validate_youtube_url(parsed) -> bool:
+def _validate_youtube_url(parsed: Any) -> bool:
     """Validate YouTube URL format."""
     domain = parsed.netloc.replace("www.", "").lower()
 
@@ -54,7 +55,7 @@ def _validate_youtube_url(parsed) -> bool:
     return False
 
 
-def _validate_vimeo_url(parsed) -> bool:
+def _validate_vimeo_url(parsed: Any) -> bool:
     """Validate Vimeo URL format."""
     domain = parsed.netloc.replace("www.", "").lower()
 
@@ -71,7 +72,7 @@ def _validate_vimeo_url(parsed) -> bool:
     return False
 
 
-def _validate_direct_url(parsed) -> bool:
+def _validate_direct_url(parsed: Any) -> bool:
     """Validate direct video URL format."""
     # Must have valid domain
     if not parsed.netloc:

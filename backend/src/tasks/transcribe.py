@@ -7,6 +7,8 @@ import asyncio
 from datetime import datetime
 from pathlib import Path
 
+from typing import TYPE_CHECKING, Any
+
 from celery import Task
 from sqlalchemy.orm import Session
 
@@ -20,8 +22,8 @@ from src.tasks.app import celery_app
 from src.tasks.base import ProgressTask
 
 
-@celery_app.task(bind=True, base=ProgressTask, name="tasks.transcribe_audio")
-def transcribe_audio_task(self: Task, extract_result: dict, video_id: int) -> dict[str, int]:
+@celery_app.task(bind=True, base=ProgressTask, name="tasks.transcribe_audio")  # type: ignore[untyped-decorator]
+def transcribe_audio_task(self: Task, extract_result: dict[str, Any], video_id: int) -> dict[str, int]:
     """
     Transcribe audio file and save results to database.
 
@@ -146,7 +148,7 @@ def transcribe_audio_task(self: Task, extract_result: dict, video_id: int) -> di
         db.close()
 
 
-def _cache_transcription_sync(cache, url_hash: str, data: dict) -> None:
+def _cache_transcription_sync(cache: Any, url_hash: str, data: dict[str, Any]) -> None:
     """Synchronous cache operation for Celery."""
     import json
 

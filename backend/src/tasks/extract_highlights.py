@@ -12,16 +12,25 @@ from src.db.session import SessionLocal
 from src.models.highlight import Highlight
 from src.models.summary import Summary
 from src.models.transcription import Transcription
+"""Celery task for extracting highlights from summaries."""
+
+from typing import Any
+
+from src.core.errors import VideoNotFoundError
+from src.db.session import SessionLocal
+from src.models.highlight import Highlight
+from src.models.summary import Summary
+from src.models.video import Video, VideoStatus
 from src.services.summarization_service import summarization_service
 from src.tasks.app import celery_app
 
 
-@celery_app.task(name="tasks.extract_highlights", bind=True, max_retries=2)
+@celery_app.task(name="tasks.extract_highlights", bind=True, max_retries=2)  # type: ignore[untyped-decorator]
 def extract_highlights_task(
-    self,
-    summary_ref: dict | int,
+    self: Any,
+    summary_ref: dict[str, Any] | int,
     max_highlights: int = 5,
-) -> dict:
+) -> dict[str, Any]:
     """
     Extract highlights for a summary.
 
@@ -57,7 +66,7 @@ def extract_highlights_task(
             db.query(Transcription).filter(Transcription.video_id == summary.video_id).first()
         )
         if not transcription:
-            raise VideoNotFoundError(summary.video_id)
+            raise VideoNotFoundError(str(summary.video_id))
 
         # Extract highlights using AI service
         extracted_highlights = asyncio.run(

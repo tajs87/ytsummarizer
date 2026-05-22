@@ -48,7 +48,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.rate_limit_paths = ["/api/v1/videos"]  # Paths that consume rate limit
 
     async def dispatch(
-        self, request: Request, call_next: Callable[[Request], Response]
+        self, request: Request, call_next: Callable[[Request], Response]  # type: ignore[override]
     ) -> Response:
         """Process request and enforce rate limits."""
         # Only check rate limits for video submission (POST to /videos)
@@ -101,5 +101,5 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                             db.close()
 
         # Proceed with request
-        response = await call_next(request)
+        response: Response = await call_next(request)  # type: ignore[misc]
         return response

@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.session import Base
 
@@ -21,7 +21,7 @@ class SummaryType(enum.StrEnum):
     BULLET_POINTS = "bullet_points"  # Key points in list format
 
 
-class Summary(Base):
+class Summary(Base):  # type: ignore[misc]
     """AI-generated summary of video transcription."""
 
     __tablename__ = "summaries"
@@ -30,7 +30,7 @@ class Summary(Base):
     video_id = Column(
         Integer, ForeignKey("videos.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    summary_type = Column(SQLEnum(SummaryType), nullable=False, default=SummaryType.BRIEF)
+    summary_type: Mapped[str] = Column(SQLEnum(SummaryType), nullable=False, default=SummaryType.BRIEF)  # type: ignore[assignment]
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
     updated_at = Column(

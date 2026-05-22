@@ -49,7 +49,12 @@ async def submit_video(
     url_str = str(request.url)
 
     # Generate URL hash for deduplication
-    owner_scope = f"user:{context.user.id}" if context.user else f"guest:{context.guest_session.id}"
+    if context.user:
+        owner_scope = f"user:{context.user.id}"
+    elif context.guest_session:
+        owner_scope = f"guest:{context.guest_session.id}"
+    else:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     url_hash = Video.generate_url_hash(url_str, user_scope=owner_scope)
     print(f"[DEBUG] Generated URL hash: {url_hash}", flush=True)
     logger.info(f"[SUBMIT] Generated URL hash: {url_hash}")
@@ -154,7 +159,7 @@ async def list_videos(
     query = db.query(Video)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
 
     # Apply status filter
@@ -216,7 +221,7 @@ async def get_video(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 
@@ -261,7 +266,7 @@ async def delete_video(
     query = db.query(Video).filter(Video.id == video_id)
     if context.user:
         query = query.filter(Video.user_id == context.user.id)
-    else:
+    elif context.guest_session:
         query = query.filter(Video.owner_guest_session_id == context.guest_session.id)
     video = query.first()
 

@@ -23,7 +23,7 @@ class VideoExtractor:
     Supports YouTube, Vimeo, and direct video links via yt-dlp.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize video extractor with default options."""
         self.ydl_opts = {
             "format": "bestaudio/best",

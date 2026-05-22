@@ -14,7 +14,7 @@ from sqlalchemy.sql import func
 from src.db.session import Base
 
 
-class Transcription(Base):
+class Transcription(Base):  # type: ignore[misc]
     """
     Transcription entity containing full text and timing segments.
 

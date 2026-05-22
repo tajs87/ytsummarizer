@@ -9,7 +9,7 @@ from celery import Task
 from src.tasks.app import celery_app
 
 
-class ProgressTask(Task):
+class ProgressTask(Task):  # type: ignore[misc]
     """
     Base task class that supports progress tracking.
 
