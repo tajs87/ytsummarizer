@@ -6,8 +6,7 @@ Uses OpenAI Whisper to transcribe audio and store results.
 import asyncio
 from datetime import datetime
 from pathlib import Path
-
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from celery import Task
 from sqlalchemy.orm import Session

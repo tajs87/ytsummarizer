@@ -1,6 +1,6 @@
 """FastAPI dependencies for authentication, guest context, and database access."""
 
-__all__ = ["get_db", "get_current_user", "get_optional_user", "get_request_context", "RequestContext"]
+__all__ = ["get_db", "get_current_user", "get_request_context", "RequestContext"]
 
 from dataclasses import dataclass
 from typing import Annotated

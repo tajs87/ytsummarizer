@@ -4,6 +4,7 @@ Identifies important segments with timestamps for quick navigation.
 """
 
 import asyncio
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -12,15 +13,6 @@ from src.db.session import SessionLocal
 from src.models.highlight import Highlight
 from src.models.summary import Summary
 from src.models.transcription import Transcription
-"""Celery task for extracting highlights from summaries."""
-
-from typing import Any
-
-from src.core.errors import VideoNotFoundError
-from src.db.session import SessionLocal
-from src.models.highlight import Highlight
-from src.models.summary import Summary
-from src.models.video import Video, VideoStatus
 from src.services.summarization_service import summarization_service
 from src.tasks.app import celery_app
 

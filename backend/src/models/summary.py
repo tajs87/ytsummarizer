@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from src.db.session import Base
 
