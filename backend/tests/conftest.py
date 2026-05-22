@@ -2,6 +2,8 @@
 Pytest configuration and shared fixtures for backend tests.
 """
 
+from collections.abc import Generator
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -14,7 +16,7 @@ from src.models.user import User  # noqa: F401 - imported for table creation
 
 
 @pytest.fixture(scope="function")
-def test_db() -> Session:
+def test_db() -> Generator[Session, None, None]:
     """
     Create a test database session with isolated transaction.
 
@@ -118,6 +120,6 @@ def guest_session(test_db: Session) -> GuestSession:
 def guest_session_cookie(
     guest_session_cookie_name: str,
     guest_session: GuestSession,
-) -> dict[str, str]:
+) -> dict[str, str | None]:
     """Provide cookie mapping that can be passed to TestClient requests."""
     return {guest_session_cookie_name: guest_session.raw_token}

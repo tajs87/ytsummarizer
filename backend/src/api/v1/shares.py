@@ -53,18 +53,9 @@ async def create_share_link(
         expires_in_hours=request.expires_in_hours,
     )
 
-    return ShareLinkResponse(
-        id=link.id,
-        video_id=link.video_id,
-        token=link.token,
-        share_url=f"/share/{link.token}",
-        start_time=link.start_time,
-        end_time=link.end_time,
-        title=link.title,
-        is_active=link.is_active,
-        created_at=link.created_at,
-        expires_at=link.expires_at,
-    )
+    response = ShareLinkResponse.model_validate(link)
+    response.share_url = f"/share/{link.token}"
+    return response
 
 
 @router.get("/share/{token}", response_model=ShareLinkPublicResponse)

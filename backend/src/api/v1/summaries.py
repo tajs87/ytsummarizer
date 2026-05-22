@@ -102,7 +102,7 @@ async def get_video_summaries(
     )
 
     return SummaryListResponse(
-        summaries=summaries,
+        summaries=[SummaryResponse.model_validate(s) for s in summaries],
         total=len(summaries),
     )
 
