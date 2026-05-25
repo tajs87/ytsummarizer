@@ -21,6 +21,7 @@ RUN uv pip install --system -e ".[dev]"
 # Copy application code and configuration
 COPY src ./src
 COPY alembic.ini ./
+COPY app.py ./
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
