@@ -4,7 +4,7 @@
  */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 
-const API_URL = import.meta.env['VITE_API_URL'] ?? 'http://localhost:8000';
+const API_URL = import.meta.env['VITE_API_URL'] || 'https://ytsummarizer.railway.internal';
 
 export type ApiResponse<T> = {
   data: T;
