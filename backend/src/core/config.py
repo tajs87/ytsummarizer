@@ -3,6 +3,7 @@ Application configuration using pydantic-settings.
 Loads from environment variables with validation.
 """
 
+import json
 from functools import lru_cache
 from typing import Literal
 
@@ -56,6 +57,19 @@ class Settings(BaseSettings):
 
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def parse_allowed_origins(cls, v: object) -> list[str]:
+        """Parse ALLOWED_ORIGINS from a JSON array string if provided."""
+        if isinstance(v, str):
+            try:
+                parsed = json.loads(v)
+                if isinstance(parsed, list):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+        return v  # type: ignore[return-value]
 
     @field_validator("celery_broker_url", mode="before")  # type: ignore[type-var]
     @classmethod
