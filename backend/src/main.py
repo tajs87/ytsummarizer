@@ -3,12 +3,17 @@ Main FastAPI application entry point.
 Configures middleware, routes, and error handlers.
 """
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.api.middleware import RateLimitMiddleware, configure_cors
 from src.api.v1 import auth, guest
+from src.core.config import get_settings
 from src.core.errors import YTSumError
+
+logger = logging.getLogger(__name__)
 
 # Create FastAPI application
 app = FastAPI(
@@ -21,6 +26,7 @@ app = FastAPI(
 
 # Configure CORS
 configure_cors(app)
+logger.info(f"CORS allowed origins: {get_settings().allowed_origins}")
 
 # Add rate limiting middleware
 app.add_middleware(RateLimitMiddleware)
