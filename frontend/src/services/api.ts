@@ -4,7 +4,8 @@
  */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 
-const API_URL = import.meta.env['VITE_API_URL'] || 'https://ytsummarizer-production.up.railway.app';
+//const API_URL = import.meta.env['VITE_API_URL'] || 'https://ytsummarizer-production.up.railway.app';
+const API_URL = 'https://ytsummarizer-production.up.railway.app';
 
 export type ApiResponse<T> = {
   data: T;
