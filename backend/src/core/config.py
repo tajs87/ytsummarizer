@@ -42,11 +42,13 @@ class Settings(BaseSettings):
 
     # Application
     debug: bool = False
-    allowed_origins: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173", "http://localhost:3000"]
-    )
+    allowed_origins: str = "http://localhost:5173,http://localhost:3000"
     max_video_duration_hours: int = 3
     rate_limit_videos_per_hour: int = 10
+
+    def get_allowed_origins_list(self) -> list[str]:
+        """Parse allowed_origins string into a list."""
+        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
     # Celery
     celery_broker_url: RedisDsn | None = None

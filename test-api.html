@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Connection Test</title>
+</head>
+<body>
+    <h1>YTSum API Connection Test</h1>
+    <button onclick="testAPI()">Test API Connection</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                console.log('Making request to: http://localhost:8000/api/v1/guest/session');
+                const response = await fetch('http://localhost:8000/api/v1/guest/session', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                resultDiv.innerHTML = `
+                    <p style="color: green;">✓ Success!</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <p>Check the browser console (F12) for more details</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <p style="color: red;">✗ Failed</p>
+                    <pre>${error.message}</pre>
+                    <p>Check the browser console (F12) for more details</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
