@@ -3,7 +3,6 @@ Application configuration using pydantic-settings.
 Loads from environment variables with validation.
 """
 
-import json
 from functools import lru_cache
 from typing import Literal
 
@@ -42,7 +41,7 @@ class Settings(BaseSettings):
 
     # Application
     debug: bool = False
-    allowed_origins: str = "http://localhost:5173,http://localhost:3000"
+    allowed_origins: str = "http://localhost:5173,http://localhost:3000,https://frontend-production-238e.up.railway.app"
     max_video_duration_hours: int = 3
     rate_limit_videos_per_hour: int = 10
 
@@ -59,19 +58,6 @@ class Settings(BaseSettings):
 
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
-
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_allowed_origins(cls, v: object) -> list[str]:
-        """Parse ALLOWED_ORIGINS from a JSON array string if provided."""
-        if isinstance(v, str):
-            try:
-                parsed = json.loads(v)
-                if isinstance(parsed, list):
-                    return parsed
-            except json.JSONDecodeError:
-                pass
-        return v  # type: ignore[return-value]
 
     @field_validator("celery_broker_url", mode="before")  # type: ignore[type-var]
     @classmethod
