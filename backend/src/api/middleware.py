@@ -1,12 +1,11 @@
 """
-FastAPI middleware for CORS and rate limiting.
+FastAPI middleware for rate limiting.
 """
 
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
 from fastapi import Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -17,22 +16,6 @@ from src.db.session import SessionLocal
 from src.models.user import User
 
 settings = get_settings()
-
-
-def configure_cors(app: object) -> None:
-    """
-    Configure CORS middleware for the application.
-
-    Args:
-        app: FastAPI application instance
-    """
-    app.add_middleware(  # type: ignore
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
