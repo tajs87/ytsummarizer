@@ -47,6 +47,8 @@ class Settings(BaseSettings):
 
     def get_allowed_origins_list(self) -> list[str]:
         """Parse allowed_origins string into a list."""
+        if self.allowed_origins.strip() == "*":
+            return ["*"]
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
     # Celery
