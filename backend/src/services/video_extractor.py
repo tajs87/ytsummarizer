@@ -116,6 +116,8 @@ class VideoExtractor:
 
     def _download_audio_sync(self, url: str, output_path: Path) -> Path:
         """Synchronous audio download (runs in executor)."""
+        # Start with lower bitrate to avoid file size issues
+        # OpenAI Whisper API has 25MB limit
         ydl_opts = {
             **self.ydl_opts,
             "outtmpl": str(output_path.with_suffix("")),  # yt-dlp adds extension
@@ -123,7 +125,7 @@ class VideoExtractor:
                 {
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": "mp3",
-                    "preferredquality": "192",
+                    "preferredquality": "96",  # Lower bitrate to stay under 25MB
                 }
             ],
         }
@@ -139,7 +141,77 @@ class VideoExtractor:
                 details={"expected_path": str(final_path)},
             )
 
+        # Check file size and compress further if needed
+        max_size = 24 * 1024 * 1024  # 24MB to be safe
+        if final_path.stat().st_size > max_size:
+            final_path = self._compress_audio(final_path, max_size)
+
         return final_path
+
+    def _compress_audio(self, audio_path: Path, max_size: int) -> Path:
+        """
+        Compress audio file to fit under max size.
+
+        Args:
+            audio_path: Path to audio file to compress
+            max_size: Maximum file size in bytes
+
+        Returns:
+            Path to compressed audio file
+
+        Raises:
+            VideoExtractionError: If compression fails
+        """
+        import subprocess
+
+        compressed_path = audio_path.with_stem(f"{audio_path.stem}_compressed")
+        
+        # Calculate target bitrate based on duration
+        # Leave some buffer for container overhead
+        try:
+            # Get audio duration using ffprobe
+            result = subprocess.run(
+                [
+                    "ffprobe",
+                    "-v", "error",
+                    "-show_entries", "format=duration",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(audio_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            duration = float(result.stdout.strip())
+            
+            # Calculate target bitrate (in kbps), with 90% of max to be safe
+            target_bitrate = int((max_size * 0.9 * 8) / (duration * 1000))
+            target_bitrate = max(32, min(target_bitrate, 96))  # Clamp between 32-96 kbps
+            
+            # Compress using ffmpeg
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-i", str(audio_path),
+                    "-b:a", f"{target_bitrate}k",
+                    "-ac", "1",  # Convert to mono
+                    "-ar", "16000",  # Lower sample rate
+                    str(compressed_path),
+                    "-y",  # Overwrite output file
+                ],
+                capture_output=True,
+                check=True,
+            )
+            
+            # Remove original and return compressed
+            audio_path.unlink()
+            return compressed_path
+            
+        except Exception as e:
+            raise VideoExtractionError(
+                message=f"Failed to compress audio: {str(e)}",
+                details={"audio_path": str(audio_path), "error": str(e)},
+            ) from e
 
     def _detect_platform(self, url: str, info: dict[str, Any]) -> VideoPlatform:
         """
