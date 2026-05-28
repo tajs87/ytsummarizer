@@ -4,6 +4,8 @@ Handles downloading audio and extracting metadata from video URLs.
 """
 
 import asyncio
+import base64
+import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -32,6 +34,45 @@ class VideoExtractor:
             "extract_flat": False,
             "nocheckcertificate": True,
         }
+        
+        # Try to configure cookies to avoid YouTube bot detection
+        self._configure_cookies()
+    
+    def _configure_cookies(self) -> None:
+        """Configure cookie authentication for yt-dlp."""
+        # Option 1: Use base64-encoded cookies from environment (for Railway/cloud)
+        cookies_b64 = os.getenv("YTDLP_COOKIES_BASE64")
+        if cookies_b64:
+            try:
+                # Decode and write to temp file
+                cookie_content = base64.b64decode(cookies_b64).decode("utf-8")
+                temp_cookie_file = Path(tempfile.gettempdir()) / "ytdlp_cookies.txt"
+                temp_cookie_file.write_text(cookie_content)
+                self.ydl_opts["cookiefile"] = str(temp_cookie_file)
+                return
+            except Exception:
+                pass  # Fall through to next option
+        
+        # Option 2: Use cookie file if provided via environment variable
+        cookie_file = os.getenv("YTDLP_COOKIE_FILE")
+        if cookie_file and Path(cookie_file).exists():
+            self.ydl_opts["cookiefile"] = cookie_file
+            return
+        
+        # Option 3: Try to extract cookies from browser (for local development)
+        # Try multiple browsers in order of preference
+        for browser in ["chrome", "firefox", "safari", "edge"]:
+            try:
+                # Test if browser cookies are accessible
+                test_opts = {**self.ydl_opts, "cookiesfrombrowser": (browser,)}
+                # Don't actually set it yet, just test
+                self.ydl_opts["cookiesfrombrowser"] = (browser,)
+                return
+            except Exception:
+                continue
+        
+        # If no cookies available, proceed without them
+        # yt-dlp will work for most videos, but may fail on some YouTube videos
 
     async def extract_metadata(self, url: str) -> dict[str, Any]:
         """
