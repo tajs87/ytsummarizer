@@ -36,12 +36,12 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     guest_session_cookie_name: str = "ytsum_guest_session"
     guest_session_max_age_seconds: int = 86400
-    guest_session_secure_cookie: bool = False
-    guest_session_same_site: Literal["lax", "strict", "none"] = "lax"
+    guest_session_secure_cookie: bool = True  # Required for HTTPS/Railway
+    guest_session_same_site: Literal["lax", "strict", "none"] = "none"  # Required for cross-origin
 
     # Application
     debug: bool = False
-    allowed_origins: str = "http://localhost:5173,http://localhost:3000,https://frontend-production-238e.up.railway.app"
+    # allowed_origins: str = "http://localhost:5173,http://localhost:3000,https://frontend-production-238e.up.railway.app"
     max_video_duration_hours: int = 3
     rate_limit_videos_per_hour: int = 10
 
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
         """Parse allowed_origins string into a list."""
         if self.allowed_origins.strip() == "*":
             return ["*"]
-        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+        # return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
 
     # Celery
     celery_broker_url: RedisDsn | None = None
