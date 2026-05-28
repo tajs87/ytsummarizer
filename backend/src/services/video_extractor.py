@@ -59,17 +59,16 @@ class VideoExtractor:
             self.ydl_opts["cookiefile"] = cookie_file
             return
         
-        # Option 3: Try to extract cookies from browser (for local development)
-        # Try multiple browsers in order of preference
-        for browser in ["chrome", "firefox", "safari", "edge"]:
-            try:
-                # Test if browser cookies are accessible
-                test_opts = {**self.ydl_opts, "cookiesfrombrowser": (browser,)}
-                # Don't actually set it yet, just test
-                self.ydl_opts["cookiesfrombrowser"] = (browser,)
-                return
-            except Exception:
-                continue
+        # Option 3: Try to extract cookies from browser (for local development only)
+        # Only attempt if explicitly enabled via environment variable
+        if os.getenv("YTDLP_USE_BROWSER_COOKIES") == "true":
+            for browser in ["chrome", "firefox", "safari", "edge"]:
+                try:
+                    self.ydl_opts["cookiesfrombrowser"] = (browser,)
+                    # Browser found, will be validated on first use
+                    return
+                except Exception:
+                    continue
         
         # If no cookies available, proceed without them
         # yt-dlp will work for most videos, but may fail on some YouTube videos

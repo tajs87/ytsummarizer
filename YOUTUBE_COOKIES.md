@@ -8,7 +8,25 @@ Export your browser cookies and provide them to the application.
 
 ### For Local Development
 
-The application will automatically try to use cookies from your browser (Chrome, Firefox, Safari, or Edge). No additional setup needed.
+**Option A: Use Environment Variable (Recommended)**
+
+Set `YTDLP_USE_BROWSER_COOKIES=true` in your `.env` file to enable automatic browser cookie detection:
+```bash
+YTDLP_USE_BROWSER_COOKIES=true
+```
+
+The application will automatically try to use cookies from Chrome, Firefox, Safari, or Edge.
+
+**Option B: Use Cookie File**
+
+Export cookies and point to the file:
+```bash
+# Export cookies using yt-dlp
+yt-dlp --cookies-from-browser chrome --cookies cookies.txt "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+# Set environment variable
+YTDLP_COOKIE_FILE=/path/to/cookies.txt
+```
 
 ### For Production/Railway Deployment
 
@@ -72,3 +90,13 @@ Cookies typically expire after a few months. If you start seeing authentication 
 - Use environment variables for production
 - Rotate cookies periodically
 - Use a dedicated YouTube account if possible
+
+### Note on Cookie Requirement
+
+Most YouTube videos work without authentication. You only need cookies if:
+- You encounter "Sign in to confirm you're not a bot" errors
+- The video is age-restricted
+- The video is private or unlisted
+- YouTube blocks your server's IP address
+
+For production use on Railway, it's recommended to set up cookies to avoid intermittent failures.
