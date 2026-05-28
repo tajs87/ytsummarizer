@@ -8,7 +8,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from src.api.middleware import RateLimitMiddleware
+from src.api.middleware import RateLimitMiddleware, configure_cors
 from src.api.v1 import auth, guest
 from src.core.config import get_settings
 from src.core.errors import YTSumError
@@ -23,6 +23,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Configure CORS
+configure_cors(app)
 
 # Add rate limiting middleware
 app.add_middleware(RateLimitMiddleware)

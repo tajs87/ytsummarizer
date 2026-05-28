@@ -18,6 +18,25 @@ from src.models.user import User
 settings = get_settings()
 
 
+def configure_cors(app: object) -> None:
+    """
+    Configure CORS middleware for the application.
+
+    Args:
+        app: FastAPI application instance
+    """
+    allowed_origins = settings.get_allowed_origins_list()
+    
+    app.add_middleware(  # type: ignore
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """
     Middleware to enforce per-user rate limits on video processing.
