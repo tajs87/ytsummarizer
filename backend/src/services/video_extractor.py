@@ -28,11 +28,15 @@ class VideoExtractor:
     def __init__(self) -> None:
         """Initialize video extractor with default options."""
         self.ydl_opts = {
-            "format": "bestaudio/best",
+            # More flexible format selection to handle various video types
+            # Try: best audio-only -> best video with audio -> any format
+            "format": "bestaudio*/best/worst",
             "quiet": True,
             "no_warnings": True,
             "extract_flat": False,
             "nocheckcertificate": True,
+            # Ignore errors for unavailable formats and try alternatives
+            "ignoreerrors": False,
         }
         
         # Try to configure cookies to avoid YouTube bot detection
