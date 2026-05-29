@@ -5,6 +5,7 @@ Handles downloading audio and extracting metadata from video URLs.
 
 import asyncio
 import base64
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -16,6 +17,8 @@ from src.core.errors import VideoExtractionError
 from src.models.video import VideoPlatform
 from src.services.platform_detector import platform_detector
 from src.utils.validators import validate_platform_url
+
+logger = logging.getLogger(__name__)
 
 
 class VideoExtractor:
@@ -53,14 +56,17 @@ class VideoExtractor:
                 temp_cookie_file = Path(tempfile.gettempdir()) / "ytdlp_cookies.txt"
                 temp_cookie_file.write_text(cookie_content)
                 self.ydl_opts["cookiefile"] = str(temp_cookie_file)
+                logger.info(f"Loaded cookies from YTDLP_COOKIES_BASE64 to {temp_cookie_file}")
                 return
-            except Exception:
-                pass  # Fall through to next option
+            except Exception as e:
+                logger.warning(f"Failed to load base64 cookies: {e}")
+                # Fall through to next option
         
         # Option 2: Use cookie file if provided via environment variable
         cookie_file = os.getenv("YTDLP_COOKIE_FILE")
         if cookie_file and Path(cookie_file).exists():
             self.ydl_opts["cookiefile"] = cookie_file
+            logger.info(f"Using cookie file: {cookie_file}")
             return
         
         # Option 3: Try to extract cookies from browser (for local development only)
@@ -69,12 +75,14 @@ class VideoExtractor:
             for browser in ["chrome", "firefox", "safari", "edge"]:
                 try:
                     self.ydl_opts["cookiesfrombrowser"] = (browser,)
+                    logger.info(f"Using cookies from browser: {browser}")
                     # Browser found, will be validated on first use
                     return
                 except Exception:
                     continue
         
         # If no cookies available, proceed without them
+        logger.warning("No cookies configured - YouTube may block some videos")
         # yt-dlp will work for most videos, but may fail on some YouTube videos
 
     async def extract_metadata(self, url: str) -> dict[str, Any]:
