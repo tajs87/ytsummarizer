@@ -22,6 +22,10 @@ RUN uv pip install --system -e ".[dev]"
 COPY src ./src
 COPY alembic.ini ./
 COPY app.py ./
+COPY start-railway.sh ./
+
+# Make startup script executable
+RUN chmod +x start-railway.sh
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
