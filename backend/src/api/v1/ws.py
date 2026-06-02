@@ -59,6 +59,13 @@ async def progress_websocket(
             result = AsyncResult(task_id, app=celery_app)
             meta = result.info if isinstance(result.info, dict) else {}
 
+            # For failed tasks, result.info is the raised Exception, not a dict.
+            # Extract a human-readable message from it directly.
+            if result.state == "FAILURE" and not isinstance(result.info, dict):
+                error_msg = str(result.info) if result.info else "Processing failed"
+            else:
+                error_msg = meta.get("error", "Processing failed") if meta else "Processing failed"
+
             payload: dict[str, Any]
             if result.state == "PROGRESS":
                 payload = {
@@ -74,10 +81,8 @@ async def progress_websocket(
                 }
             elif result.state == "FAILURE":
                 payload = {
-                    "progress": int(meta.get("progress", 0)) if meta else 0,
-                    "message": str(meta.get("error", "Processing failed"))
-                    if meta
-                    else "Processing failed",
+                    "progress": 0,
+                    "message": error_msg,
                     "status": "failed",
                 }
             elif result.state == "STARTED":
