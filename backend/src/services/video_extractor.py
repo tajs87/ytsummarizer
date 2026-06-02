@@ -117,7 +117,22 @@ class VideoExtractor:
 
     def _extract_metadata_sync(self, url: str) -> dict[str, Any]:
         """Synchronous metadata extraction (runs in executor)."""
-        with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
+        # For metadata extraction, don't specify format - just get info
+        metadata_opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "extract_flat": False,
+            "nocheckcertificate": True,
+            "ignoreerrors": False,
+        }
+        
+        # Add cookies if configured
+        if "cookiefile" in self.ydl_opts:
+            metadata_opts["cookiefile"] = self.ydl_opts["cookiefile"]
+        if "cookiesfrombrowser" in self.ydl_opts:
+            metadata_opts["cookiesfrombrowser"] = self.ydl_opts["cookiesfrombrowser"]
+        
+        with yt_dlp.YoutubeDL(metadata_opts) as ydl:
             info = ydl.extract_info(url, download=False)
 
             # Determine platform from URL
@@ -172,20 +187,55 @@ class VideoExtractor:
         """Synchronous audio download (runs in executor)."""
         # Start with lower bitrate to avoid file size issues
         # OpenAI Whisper API has 25MB limit
-        ydl_opts = {
-            **self.ydl_opts,
-            "outtmpl": str(output_path.with_suffix("")),  # yt-dlp adds extension
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "96",  # Lower bitrate to stay under 25MB
+        
+        # Try multiple format options in order of preference
+        format_options = [
+            "bestaudio/best",  # Prefer audio-only, fallback to best
+            "worstaudio/worst",  # Low quality fallback
+            None,  # Let yt-dlp decide (default behavior)
+        ]
+        
+        last_error = None
+        for format_str in format_options:
+            try:
+                ydl_opts = {
+                    **self.ydl_opts,
+                    "outtmpl": str(output_path.with_suffix("")),  # yt-dlp adds extension
+                    "postprocessors": [
+                        {
+                            "key": "FFmpegExtractAudio",
+                            "preferredcodec": "mp3",
+                            "preferredquality": "96",  # Lower bitrate to stay under 25MB
+                        }
+                    ],
                 }
-            ],
-        }
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+                
+                # Override format if specified
+                if format_str is not None:
+                    ydl_opts["format"] = format_str
+                elif "format" in ydl_opts:
+                    # Remove format key to use default
+                    del ydl_opts["format"]
+                
+                logger.info(f"Attempting download with format: {format_str or 'default'}")
+                
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([url])
+                
+                # If we get here, download succeeded
+                break
+                
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Download failed with format '{format_str}': {str(e)}")
+                # Try next format option
+                continue
+        else:
+            # All format options failed
+            raise VideoExtractionError(
+                message=f"Failed to download audio with all format options: {str(last_error)}",
+                details={"url": url, "error": str(last_error)},
+            ) from last_error
 
         # yt-dlp adds .mp3 extension
         final_path = output_path.with_suffix(".mp3")
