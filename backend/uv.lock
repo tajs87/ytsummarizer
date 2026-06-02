@@ -2112,6 +2112,6 @@ requires-dist = [
     { name = "types-passlib", marker = "extra == 'dev'", specifier = ">=1.7.7" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = ">=4.6.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.24.0" },
-    { name = "yt-dlp", specifier = ">=2023.11.0" },
+    { name = "yt-dlp", specifier = ">=2026.3.17" },
 ]
 provides-extras = ["dev"]
