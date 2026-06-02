@@ -32,14 +32,16 @@ class VideoExtractor:
         """Initialize video extractor with default options."""
         self.ydl_opts = {
             # More flexible format selection to handle various video types
-            # Try: best audio-only -> best video with audio -> any format
-            "format": "bestaudio*/best/worst",
+            # Use bestaudio/best with fallback - this works across all platforms
+            "format": "bestaudio/best",
             "quiet": True,
             "no_warnings": True,
             "extract_flat": False,
             "nocheckcertificate": True,
             # Ignore errors for unavailable formats and try alternatives
             "ignoreerrors": False,
+            # Prefer free formats over non-free (avoids format issues)
+            "prefer_free_formats": True,
         }
         
         # Try to configure cookies to avoid YouTube bot detection
